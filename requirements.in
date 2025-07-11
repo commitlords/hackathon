@@ -3,3 +3,4 @@ Flask-RESTx
 Flask-SQLAlchemy
 Flask-JWT-Extended
 psycopg2
+Flask-cors

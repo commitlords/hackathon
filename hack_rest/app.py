@@ -3,7 +3,13 @@ from flask_restx import Api
 from database import db
 import os
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+from hack_rest.api_v1 import api_v1, api_v1_bp, API_V1_NAMESPACES
+from hack_rest.api_v2 import api_v2, api_v2_bp, API_V2_NAMESPACES
 
+def configure_namespaces(api_namespaces, api):
+    for namespace in api_namespaces:
+        api.add_namespace(namespace)
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -15,5 +21,17 @@ def create_app() -> Flask:
     # Initialize db for current app
     db.init_app(app)
 
+    # Initialize CORS for the current app
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 
+    app.register_blueprint(api_v1_bp)
+    app.register_blueprint(api_v2_bp)
 
+    # Configure available namespaces for this app
+    configure_namespaces(API_V1_NAMESPACES, api_v1)
+    configure_namespaces(API_V2_NAMESPACES, api_v2)
+
+    return app
+
+if __name__ == "__main__":
+    create_app().run(host=os.environ.get("FLASK_HOST", "0.0.0.0"), port=8080)
