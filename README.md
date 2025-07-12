@@ -48,3 +48,10 @@ Drop Role
 ```sh
 psql -d dhs -c "DROP ROLE IF EXISTS \"FININC_USER\";"
 ```
+
+### Code check
+
+Before pushing your changes to the repository please run a linter and code formatting
+```sh
+isort hack_rest && python -m black -t py39 hack_rest && python -m pylint -j 1 hack_rest
+```
