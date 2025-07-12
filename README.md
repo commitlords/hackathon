@@ -55,3 +55,15 @@ Before pushing your changes to the repository please run a linter and code forma
 ```sh
 isort hack_rest && python -m black -t py39 hack_rest && python -m pylint -j 1 hack_rest
 ```
+
+### Windows config
+
+A few environment variables have to be setup to make flask work locally. These are automatically read from the `.flaskenv` file by the `python-dotenv` library.
+However, they can be overrideen if needed as below:
+
+```sh
+SET FLASK_APP=hack_rest\app.py
+SET FLASK_ENV=development
+SET FLASK_HOST=0.0.0.0
+set FLASK_DEBUG=1
+```
