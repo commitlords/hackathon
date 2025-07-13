@@ -53,7 +53,7 @@ psql -d dhs -c "DROP ROLE IF EXISTS \"FININC_USER\";"
 
 Before pushing your changes to the repository please run a linter and code formatting
 ```sh
-isort hack_rest && python -m black -t py39 hack_rest && python -m pylint -j 1 hack_rest
+isort hack_rest --profile=black && python -m black -t py39 hack_rest && python -m pylint -j 1 hack_rest
 ```
 
 ### Windows config

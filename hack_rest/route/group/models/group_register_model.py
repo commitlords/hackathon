@@ -1,6 +1,6 @@
 from flask_restx import Model, fields
 
-from hack_rest.route.custom_types.custom_types import BusinessChoices
+from hack_rest.route.custom_fields.custom_fields import GUID, BusinessChoices
 
 GROUP_INPUT_MODEL = Model(
     "GroupInputModel",
@@ -23,4 +23,17 @@ GROUP_LOGIN_MODEL = Model(
 GROUP_INTEREST_MODEL = Model(
     "GroupInterestModel",
     {"interest": BusinessChoices(required=True, description="business categories")},
+)
+
+GROUP_MEMBER_MODEL = Model(
+    "GroupMemberModel",
+    {
+        "name": fields.String(required=True, description="name of group member"),
+        "age": fields.Integer(required=False, description="age of group member"),
+        "sex": fields.String(required=False, description="sex of group member"),
+        "aadhar_no": fields.String(
+            required=True, description="aadhar no. of group member"
+        ),
+        "photo_id": GUID(description="phot id of the group member"),
+    },
 )
