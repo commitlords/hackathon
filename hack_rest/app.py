@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from hack_rest.api_v1 import API_V1_NAMESPACES, api_v1, api_v1_bp
 from hack_rest.api_v2 import API_V2_NAMESPACES, api_v2, api_v2_bp
 from hack_rest.database import db
+from hack_rest.route.utils.url_converters import GUIDConverter
 
 
 def configure_namespaces(api_namespaces, api):
@@ -31,6 +32,8 @@ def create_app() -> Flask:
 
     # Initialize jwt
     JWTManager(app)
+
+    app.url_map.converters["guid"] = GUIDConverter
 
     app.register_blueprint(api_v1_bp)
     app.register_blueprint(api_v2_bp)

@@ -42,7 +42,7 @@ class GroupBusinessInterest(PrintMixin, db.Model):
         db.ForeignKey(Group.id, name="fk_interest_group_id"),
         primary_key=True,
     )
-    interest = db.Column("interest", db.String(256))
+    name = db.Column("name", db.String(256))
     group = relationship(Group, back_populates="interests")
 
 

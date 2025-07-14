@@ -9,6 +9,7 @@ from hack_rest.database import db
 from hack_rest.db_models.group import GroupMember
 from hack_rest.db_models.uploads import AttachmentModel
 from hack_rest.route.group.models.group_register_model import GROUP_MEMBER_MODEL
+from hack_rest.route.utils.response import parse_json
 
 GROUP_NS = Namespace("groups", description="group member registration and management")
 
@@ -18,6 +19,7 @@ class AddMember(Resource):
 
     @jwt_required()
     @GROUP_NS.expect(GROUP_MEMBER_MODEL)
+    @parse_json(GROUP_MEMBER_MODEL)
     def post(self, group_id):
         current = get_jwt_identity()
         if current != group_id:

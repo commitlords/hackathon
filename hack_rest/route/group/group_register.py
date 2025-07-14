@@ -98,3 +98,40 @@ class AddInterest(Resource):
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
         return {"interest": interest}, HTTPStatus.CREATED
+
+
+@GROUP_NS.route("/<int:group_id>")
+class GroupDetail(Resource):
+
+    @jwt_required()
+    def get(self, group_id):
+        current = get_jwt_identity()
+        if current != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        group = db.session.query(Group).filter(Group.id == group_id).one_or_none()
+        if not group:
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        members = []
+        for m in group.members:
+            members.append(
+                {
+                    "member_id": m.id,
+                    "name": m.name,
+                    "age": m.age,
+                    "sex": m.sex,
+                    "aadhar_no": m.aadhar_no,
+                    "photo_id": m.photo_id,
+                }
+            )
+
+        interests = [gi.name for gi in Group.interests]
+
+        return {
+            "group_id": group.id,
+            "group_name": group.name,
+            "district": group.district,
+            "members": members,
+            "interests": interests,
+        }, HTTPStatus.OK

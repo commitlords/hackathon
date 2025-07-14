@@ -1,5 +1,7 @@
 from http import HTTPStatus
+from uuid import UUID
 
+from flask import Response
 from flask_jwt_extended import jwt_required
 from flask_restx import Namespace, Resource, reqparse
 from sqlalchemy.exc import SQLAlchemyError
@@ -19,6 +21,7 @@ UPLOAD_PARSER.add_argument(
 UPLOADS_NS.models[UPLOADS_MODEL.name] = UPLOADS_MODEL
 
 MAX_FILE_SIZE = 20 * 1024 * 1024
+ALLOWED_EXTS = ("jpg", "jpeg", "png")
 
 
 def _if_size_less_than_max(file_obj):
@@ -45,6 +48,10 @@ class AttachmentUpload(Resource):
         if not file_obj:
             return {"message": "No file uploaded"}, HTTPStatus.BAD_REQUEST
 
+        ext = file_obj.filename.rsplit(".", 1)[-1].lower()
+        if ext not in ALLOWED_EXTS:
+            return {"message": "Only JPG and PNG allowed"}, HTTPStatus.BAD_REQUEST
+
         if not _if_size_less_than_max(file_obj):
             return {
                 "message": "File size more than max allowed"
@@ -65,3 +72,31 @@ class AttachmentUpload(Resource):
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
         return upload
+
+
+@UPLOADS_NS.route("/<uuid:guid>")
+class AttachmentDownload(Resource):
+    @jwt_required()
+    def get(self, guid: UUID):
+        try:
+            attachment = (
+                db.session.query(AttachmentModel)
+                .filter(AttachmentModel.guid == guid)
+                .one_or_none()
+            )
+            if not attachment:
+                return {
+                    "message": f"attachment {guid.hex} not found"
+                }, HTTPStatus.BAD_REQUEST
+            return Response(
+                response=attachment.content,
+                mimetype="image/jpeg",
+                headers={
+                    "Content-Disposition": f'inline; filename="{attachment.name}"'
+                },
+            )
+        except SQLAlchemyError as err:
+            return {
+                "message": "Error in fetching attachment details",
+                "detail": str(err),
+            }, HTTPStatus.BAD_REQUEST
