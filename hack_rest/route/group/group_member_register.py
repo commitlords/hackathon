@@ -6,18 +6,13 @@ from flask_restx import Namespace, Resource
 from sqlalchemy.exc import SQLAlchemyError
 
 from hack_rest.database import db
-from hack_rest.db_models.group import Group, GroupMember
+from hack_rest.db_models.group import GroupMember
 from hack_rest.db_models.uploads import AttachmentModel
+from hack_rest.route.group.common import check_group
 from hack_rest.route.group.models.group_register_model import GROUP_MEMBER_MODEL
 from hack_rest.route.utils.response import parse_json
 
 GROUP_NS = Namespace("groups", description="group member registration and management")
-
-
-def check_group(group_id):
-    """check group"""
-    group = db.session.query(Group).filter(Group.id == group_id).one_or_none()
-    return group
 
 
 @GROUP_NS.route("/groups/<int:group_id>/members")
@@ -27,6 +22,7 @@ class AddMember(Resource):
     @GROUP_NS.expect(GROUP_MEMBER_MODEL)
     @parse_json(GROUP_MEMBER_MODEL)
     def post(self, group_id):
+        """Add a member to a group"""
         current = get_jwt_identity()
         if current != group_id:
             return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
@@ -64,6 +60,7 @@ class AddMember(Resource):
 
     @jwt_required()
     def get(self, group_id):
+        """get member details of a group"""
         current = get_jwt_identity()
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
@@ -99,6 +96,7 @@ class UpdateMember(Resource):
     @GROUP_NS.expect(GROUP_MEMBER_MODEL)
     @parse_json(GROUP_MEMBER_MODEL)
     def put(self, group_id, member_id):
+        """update member details of a group"""
         current = get_jwt_identity()
         if current != group_id:
             return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
@@ -141,3 +139,31 @@ class UpdateMember(Resource):
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
         return {"member_id": member.id}, HTTPStatus.OK
+
+    @jwt_required()
+    def delete(self, group_id, member_id):
+        """delete a member of a group"""
+        current = get_jwt_identity()
+        if current != group_id:
+            return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
+
+        if not (group := check_group(group_id)):
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        member = [m for m in group.members if m.member_id == member_id][0]
+        if not member:
+            return {
+                "message": f"member with {member_id} not found"
+            }, HTTPStatus.NOT_FOUND
+
+        try:
+            db.session.delete(member)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": f"Error in deleting member {member_id}",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return "", HTTPStatus.NO_CONTENT

@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from hack_rest.database import db
 from hack_rest.db_models.group import Group, GroupBusinessInterest
+from hack_rest.route.group.common import check_group
 from hack_rest.route.group.models.group_register_model import (
     GROUP_INPUT_MODEL,
     GROUP_INTEREST_MODEL,
@@ -129,11 +130,12 @@ class GroupDetail(Resource):
 
     @jwt_required()
     def get(self, group_id):
+        """get group details"""
         current = get_jwt_identity()
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
-        group = db.session.query(Group).filter(Group.id == group_id).one_or_none()
+        group = check_group(group_id)
         if not group:
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
@@ -143,6 +145,29 @@ class GroupDetail(Resource):
             "district": group.district,
             "interests": [gi.name for gi in group.interests],
         }, HTTPStatus.OK
+
+    @jwt_required()
+    def delete(self, group_id):
+        """delete a group"""
+        current = get_jwt_identity()
+        if current != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        group = check_group(group_id)
+        if not group:
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        try:
+            db.session.delete(group)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": f"Error in deleting group {group_id}",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return "", HTTPStatus.NO_CONTENT
 
     @jwt_required()
     @GROUP_NS.expect(GROUP_PUT_MODEL)
@@ -175,3 +200,33 @@ class GroupDetail(Resource):
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
         return {"groupID": group.id}, HTTPStatus.OK
+
+
+@GROUP_NS.route("/<int:group_id>/interests/<str:name>")
+class DeleteInterest(Resource):
+
+    @jwt_required()
+    def delete(self, group_id, name):
+        """delete a group interest"""
+        current = get_jwt_identity()
+        if current != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        if not (group := check_group(group_id)):
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        group_interest = [intrst for intrst in group.interests if intrst.name == name][
+            0
+        ]
+
+        try:
+            db.session.delete(group_interest)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": "Error in deleting group interest",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return "", HTTPStatus.NO_CONTENT
