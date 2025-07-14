@@ -2,16 +2,20 @@ from flask_restx import Model, fields
 
 from hack_rest.route.custom_fields.custom_fields import GUID, BusinessChoices
 
-GROUP_INPUT_MODEL = Model(
-    "GroupInputModel",
+GROUP_PUT_MODEL = Model(
+    "GroupPutModel",
     {
         "groupName": fields.String(required=True, description="Name of the group"),
         "district": fields.String(required=False, description="District of the group"),
-        "loginID": fields.String(required=True, description="Login ID of the group"),
         "password": fields.String(required=True, description="password of the group"),
     },
 )
-
+GROUP_INPUT_MODEL = GROUP_PUT_MODEL.clone(
+    "GroupInputModel",
+    {
+        "loginID": fields.String(required=True, description="Login ID of the group"),
+    },
+)
 GROUP_LOGIN_MODEL = Model(
     "GroupLoginModel",
     {

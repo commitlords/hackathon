@@ -11,6 +11,7 @@ from hack_rest.route.group.models.group_register_model import (
     GROUP_INPUT_MODEL,
     GROUP_INTEREST_MODEL,
     GROUP_LOGIN_MODEL,
+    GROUP_PUT_MODEL,
 )
 
 GROUP_NS = Namespace("groups", description="Group registration and management")
@@ -81,6 +82,7 @@ class AddInterest(Resource):
     @GROUP_NS.expect(GROUP_INTEREST_MODEL)
     @jwt_required()
     def post(self, group_id):
+        """register a group interest"""
         current = get_jwt_identity()
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
@@ -99,6 +101,28 @@ class AddInterest(Resource):
 
         return {"interest": interest}, HTTPStatus.CREATED
 
+    @GROUP_NS.expect(GROUP_INTEREST_MODEL)
+    @jwt_required()
+    def put(self, group_id):
+        """update group interest"""
+        current = get_jwt_identity()
+        if current != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        interest = request.json["interest"]
+        try:
+            group_interest = GroupBusinessInterest(group_id=group_id, interest=interest)
+            db.session.add(group_interest)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": "Error in group interest registration",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return {"interest": interest}, HTTPStatus.OK
+
 
 @GROUP_NS.route("/<int:group_id>")
 class GroupDetail(Resource):
@@ -113,25 +137,41 @@ class GroupDetail(Resource):
         if not group:
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
-        members = []
-        for m in group.members:
-            members.append(
-                {
-                    "member_id": m.id,
-                    "name": m.name,
-                    "age": m.age,
-                    "sex": m.sex,
-                    "aadhar_no": m.aadhar_no,
-                    "photo_id": m.photo_id,
-                }
-            )
-
-        interests = [gi.name for gi in Group.interests]
-
         return {
             "group_id": group.id,
             "group_name": group.name,
             "district": group.district,
-            "members": members,
-            "interests": interests,
+            "interests": [gi.name for gi in group.interests],
         }, HTTPStatus.OK
+
+    @jwt_required()
+    @GROUP_NS.expect(GROUP_PUT_MODEL)
+    def put(self, group_id):
+        """update a group"""
+        data = request.json
+        group_name = data.get("groupName")
+        district = data.get("district")
+        password = data.get("password")
+
+        group = db.session.query(Group).filter(Group.id == group_id).one_or_none()
+        if not group:
+            return {
+                "message": f"Group {group_id} does not exist"
+            }, HTTPStatus.BAD_REQUEST
+
+        try:
+            if district:
+                group.district = district
+            if group_name:
+                group.name = group_name
+            if password:
+                group.set_password(password)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": "Error in group update",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return {"groupID": group.id}, HTTPStatus.OK
