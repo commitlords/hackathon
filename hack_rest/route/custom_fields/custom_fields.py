@@ -5,8 +5,8 @@ from uuid import UUID
 from flask_restx import fields
 from werkzeug.exceptions import BadRequest
 
-from hack_rest.database import db
-from hack_rest.db_models.business_categories import BusinessCategory
+# from hack_rest.database import db
+# from hack_rest.db_models.business_categories import BusinessCategory
 
 
 class ConvertableField(ABC):
@@ -16,10 +16,14 @@ class ConvertableField(ABC):
         raise NotImplementedError()
 
 
+# allowed_choices = lambda: db.session.query(BusinessCategory).all()
+
+
 class BusinessChoices(fields.String):
 
     def __init__(self, *args, **kwargs):
-        self.choices = [c.name for c in db.session.query(BusinessCategory).all()]
+        # self.choices = [c.name for c in allowed_choices()]
+        self.choices = ["DAIRY", "POULTRY"]
         super().__init__(*args, **kwargs)
 
     def format(self, value):

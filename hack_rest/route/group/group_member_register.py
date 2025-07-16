@@ -14,6 +14,8 @@ from hack_rest.route.utils.response import parse_json
 
 GROUP_NS = Namespace("groups", description="group member registration and management")
 
+GROUP_NS.models[GROUP_MEMBER_MODEL.name] = GROUP_MEMBER_MODEL
+
 
 @GROUP_NS.route("/groups/<int:group_id>/members")
 class AddMember(Resource):
