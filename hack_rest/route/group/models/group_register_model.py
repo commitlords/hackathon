@@ -8,12 +8,18 @@ GROUP_PUT_MODEL = Model(
         "groupName": fields.String(required=True, description="Name of the group"),
         "district": fields.String(required=False, description="District of the group"),
         "password": fields.String(required=True, description="password of the group"),
+        "updatedBy": fields.String(
+            required=True, description="member who is updating the group"
+        ),
     },
 )
 GROUP_INPUT_MODEL = GROUP_PUT_MODEL.clone(
     "GroupInputModel",
     {
         "loginID": fields.String(required=True, description="Login ID of the group"),
+        "createdBy": fields.String(
+            required=True, description="member who is creating the group"
+        ),
     },
 )
 GROUP_LOGIN_MODEL = Model(
@@ -35,9 +41,9 @@ GROUP_MEMBER_MODEL = Model(
         "name": fields.String(required=True, description="name of group member"),
         "age": fields.Integer(required=False, description="age of group member"),
         "sex": fields.String(required=False, description="sex of group member"),
-        "aadhar_no": fields.String(
+        "aadhar": fields.String(
             required=True, description="aadhar no. of group member"
         ),
-        "photo_id": GUID(description="phot id of the group member"),
+        "photoID": GUID(description="phot id of the group member"),
     },
 )

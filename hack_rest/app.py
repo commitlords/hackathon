@@ -1,6 +1,8 @@
 import os
 
+import click
 from flask import Flask
+from flask.cli import with_appcontext
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
@@ -13,6 +15,24 @@ from hack_rest.route.utils.url_converters import GUIDConverter
 def configure_namespaces(api_namespaces, api):
     for namespace in api_namespaces:
         api.add_namespace(namespace)
+
+
+@click.command("create_db", help="create app related tables")
+@with_appcontext
+def create_db():
+    """create database tables"""
+    click.echo("creating app related tables")
+    db.create_all()
+    click.echo("tables created successfully")
+
+
+@click.command("drop_db", help="drop app related tables")
+@with_appcontext
+def drop_db():
+    """drop database tables"""
+    click.echo("dropping app related tables")
+    db.drop_all()
+    click.echo("tables dropped successfully")
 
 
 def create_app() -> Flask:
@@ -42,11 +62,12 @@ def create_app() -> Flask:
     configure_namespaces(API_V1_NAMESPACES, api_v1)
     configure_namespaces(API_V2_NAMESPACES, api_v2)
 
+    # Add cli command options
+    app.cli.add_command(create_db)
+    app.cli.add_command(drop_db)
+
     return app
 
 
 if __name__ == "__main__":
-    appl = create_app()
-    with appl.app_context():
-        db.create_all()
-    appl.run(host=os.environ.get("FLASK_HOST", "0.0.0.0"), port=8080)
+    create_app().run(host=os.environ.get("FLASK_HOST", "0.0.0.0"), port=8080)

@@ -46,9 +46,7 @@ class GroupBusinessInterest(PrintMixin, db.Model):
     group = relationship(Group, back_populates="interests")
 
 
-class GroupMember(
-    PrintMixin, db.Model, CreatedAtMixin, CreatedByMixin, UpdatedAtByMixin
-):
+class GroupMember(PrintMixin, db.Model, CreatedAtMixin, UpdatedAtByMixin):
     __tablename__ = "group_members"
     __bind_key__ = "dhs"
 

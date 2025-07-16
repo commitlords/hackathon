@@ -8,6 +8,15 @@ api_v2 = Api(
     title="RESTful webservice for Financial Inclusion- Govt",
     version="1.0",
     description="the webservice provides APIs for govt approval",
+    security="Bearer Auth",
+    authorizations={
+        "Bearer Auth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": "JWT Authorization header using Bearer scheme",
+        }
+    },
 )
 
 apidoc.apidoc.url_prefix = V2_PREFIX

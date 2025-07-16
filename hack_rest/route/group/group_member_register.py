@@ -25,7 +25,7 @@ class AddMember(Resource):
     @parse_json(GROUP_MEMBER_MODEL)
     def post(self, group_id):
         """Add a member to a group"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
 
@@ -33,7 +33,7 @@ class AddMember(Resource):
         photo_id = data.get("photoID")
         photo = (
             db.session.query(AttachmentModel)
-            .filter_by(AttachmentModel.guid == photo_id)
+            .filter(AttachmentModel.guid == photo_id)
             .one_or_none()
         )
 
@@ -46,8 +46,8 @@ class AddMember(Resource):
                 name=data.get("name"),
                 age=data.get("age"),
                 sex=data.get("sex"),
-                aadhar_no=data.get("aadhar_no"),
-                photo_id=data.get("photo_id"),
+                aadhar_no=data.get("aadhar"),
+                photo_id=data.get("photoID"),
             )
             db.session.add(member)
             db.session.commit()
@@ -63,7 +63,7 @@ class AddMember(Resource):
     @jwt_required()
     def get(self, group_id):
         """get member details of a group"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
@@ -99,7 +99,7 @@ class UpdateMember(Resource):
     @parse_json(GROUP_MEMBER_MODEL)
     def put(self, group_id, member_id):
         """update member details of a group"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
 
@@ -130,8 +130,8 @@ class UpdateMember(Resource):
             setattr(member, data.get("name", member.name))
             setattr(member, data.get("age", member.age))
             setattr(member, data.get("sex", member.sex))
-            setattr(member, data.get("aadhar_no", member.aadhar_no))
-            setattr(member, data.get("photo_id", member.photo_id))
+            setattr(member, data.get("aadhar", member.aadhar_no))
+            setattr(member, data.get("photoID", member.photo_id))
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()
@@ -145,7 +145,7 @@ class UpdateMember(Resource):
     @jwt_required()
     def delete(self, group_id, member_id):
         """delete a member of a group"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
 

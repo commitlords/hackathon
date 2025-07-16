@@ -35,6 +35,7 @@ class GroupRegister(Resource):
         district = data.get("district")
         login_id = data.get("loginID")
         password = data.get("password")
+        created_by = data.get("createdBy")
 
         if db.session.query(Group).filter(Group.login_id == login_id).one_or_none():
             return {
@@ -47,7 +48,13 @@ class GroupRegister(Resource):
             }, HTTPStatus.BAD_REQUEST
 
         try:
-            group = Group(name=group_name, district=district, login_id=login_id)
+            group = Group(
+                name=group_name,
+                district=district,
+                login_id=login_id,
+                created_by=created_by,
+                updated_by=created_by,
+            )
             group.set_password(password)
             db.session.add(group)
             db.session.commit()
@@ -75,7 +82,7 @@ class GroupLogin(Resource):
         if not group or not group.check_password(password):
             return {"message": "Invalid login ID or password"}, HTTPStatus.UNAUTHORIZED
 
-        access_token = create_access_token(identity=group.id)
+        access_token = create_access_token(identity=str(group.id))
         return {"access_token": access_token}, HTTPStatus.OK
 
 
@@ -86,7 +93,7 @@ class AddInterest(Resource):
     @jwt_required()
     def post(self, group_id):
         """register a group interest"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
@@ -108,7 +115,7 @@ class AddInterest(Resource):
     @jwt_required()
     def put(self, group_id):
         """update group interest"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
@@ -133,7 +140,7 @@ class GroupDetail(Resource):
     @jwt_required()
     def get(self, group_id):
         """get group details"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
@@ -151,7 +158,7 @@ class GroupDetail(Resource):
     @jwt_required()
     def delete(self, group_id):
         """delete a group"""
-        current = get_jwt_identity()
+        current = int(get_jwt_identity())
         if current != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
