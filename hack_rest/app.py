@@ -1,15 +1,26 @@
+import logging
 import os
+from http import HTTPStatus
 
 import click
 from flask import Flask
 from flask.cli import with_appcontext
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_jwt_extended.exceptions import (
+    InvalidHeaderError,
+    NoAuthorizationError,
+    RevokedTokenError,
+    WrongTokenError,
+)
+from werkzeug.exceptions import HTTPException, UnprocessableEntity
 
 from hack_rest.api_v1 import API_V1_NAMESPACES, api_v1, api_v1_bp
 from hack_rest.api_v2 import API_V2_NAMESPACES, api_v2, api_v2_bp
 from hack_rest.database import db
 from hack_rest.route.utils.url_converters import GUIDConverter
+
+logger = logging.getLogger(__name__)
 
 
 def configure_namespaces(api_namespaces, api):
@@ -35,6 +46,34 @@ def drop_db():
     click.echo("tables dropped successfully")
 
 
+def register_jwt_error_handler(api):
+    @api.errorhandler(NoAuthorizationError)
+    def handle_no_auth(error):
+        return {
+            "error": "Authorization Required",
+            "message": str(error),
+        }, HTTPStatus.FORBIDDEN
+
+    @api.errorhandler(InvalidHeaderError)
+    def handle_invalid_header(error):
+        return {"error": "Invalid Header", "message": str(error)}, HTTPStatus.FORBIDDEN
+
+    @api.errorhandler(WrongTokenError)
+    def handle_wrong_token(error):
+        return {"error": "Wrong Token", "message": str(error)}, HTTPStatus.FORBIDDEN
+
+    @api.errorhandler(RevokedTokenError)
+    def handle_revoked_token(error):
+        return {"error": "Revoked Token", "message": str(error)}, HTTPStatus.FORBIDDEN
+
+    @api.errorhandler(Exception)
+    def handle_generic_error(error):
+        logger.exception(f"Error: {str(error)}")
+        if isinstance(error, HTTPException):
+            raise error
+        raise UnprocessableEntity(str(error))
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
     config_path = os.environ.get(
@@ -53,6 +92,7 @@ def create_app() -> Flask:
     # Initialize jwt
     JWTManager(app)
 
+    # register_jwt_callbacks(jwt)
     app.url_map.converters["guid"] = GUIDConverter
 
     app.register_blueprint(api_v1_bp)
@@ -62,6 +102,9 @@ def create_app() -> Flask:
     configure_namespaces(API_V1_NAMESPACES, api_v1)
     configure_namespaces(API_V2_NAMESPACES, api_v2)
 
+    # register jwt error handlers
+    register_jwt_error_handler(api_v1)
+    register_jwt_error_handler(api_v2)
     # Add cli command options
     app.cli.add_command(create_db)
     app.cli.add_command(drop_db)

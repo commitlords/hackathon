@@ -25,9 +25,9 @@ class AddMember(Resource):
     @parse_json(GROUP_MEMBER_MODEL)
     def post(self, group_id):
         """Add a member to a group"""
-        current = int(get_jwt_identity())
-        if current != group_id:
-            return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         data = request.json
         photo_id = data.get("photoID")
@@ -63,8 +63,8 @@ class AddMember(Resource):
     @jwt_required()
     def get(self, group_id):
         """get member details of a group"""
-        current = int(get_jwt_identity())
-        if current != group_id:
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         if not (group := check_group(group_id)):
@@ -99,9 +99,9 @@ class UpdateMember(Resource):
     @parse_json(GROUP_MEMBER_MODEL)
     def put(self, group_id, member_id):
         """update member details of a group"""
-        current = int(get_jwt_identity())
-        if current != group_id:
-            return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
@@ -145,9 +145,9 @@ class UpdateMember(Resource):
     @jwt_required()
     def delete(self, group_id, member_id):
         """delete a member of a group"""
-        current = int(get_jwt_identity())
-        if current != group_id:
-            return {"message", "Unauthorized"}, HTTPStatus.FORBIDDEN
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND

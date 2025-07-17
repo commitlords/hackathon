@@ -82,7 +82,9 @@ class GroupLogin(Resource):
         if not group or not group.check_password(password):
             return {"message": "Invalid login ID or password"}, HTTPStatus.UNAUTHORIZED
 
-        access_token = create_access_token(identity=str(group.id))
+        access_token = create_access_token(
+            identity={"group_id": group.id, "creator": group.created_by}
+        )
         return {"access_token": access_token}, HTTPStatus.OK
 
 
@@ -93,8 +95,8 @@ class AddInterest(Resource):
     @jwt_required()
     def post(self, group_id):
         """register a group interest"""
-        current = int(get_jwt_identity())
-        if current != group_id:
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         interest = request.json["interest"]
@@ -115,8 +117,8 @@ class AddInterest(Resource):
     @jwt_required()
     def put(self, group_id):
         """update group interest"""
-        current = int(get_jwt_identity())
-        if current != group_id:
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         interest = request.json["interest"]
@@ -135,13 +137,14 @@ class AddInterest(Resource):
 
 
 @GROUP_NS.route("/<int:group_id>")
+@GROUP_NS.doc(security="Bearer Auth")
 class GroupDetail(Resource):
 
     @jwt_required()
     def get(self, group_id):
         """get group details"""
-        current = int(get_jwt_identity())
-        if current != group_id:
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         group = check_group(group_id)
@@ -158,8 +161,8 @@ class GroupDetail(Resource):
     @jwt_required()
     def delete(self, group_id):
         """delete a group"""
-        current = int(get_jwt_identity())
-        if current != group_id:
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         group = check_group(group_id)
@@ -183,6 +186,10 @@ class GroupDetail(Resource):
     def put(self, group_id):
         """update a group"""
         data = request.json
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
         group_name = data.get("groupName")
         district = data.get("district")
         password = data.get("password")
@@ -217,11 +224,10 @@ class GroupDetail(Resource):
 #     @jwt_required()
 #     def delete(self, group_id, name):
 #         """delete a group interest"""
-#         current = get_jwt_identity()
-#         if current != group_id:
+#       identity = get_jwt_identity()
+#       if identity.get("group_id") != group_id:
 #             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
-#
-#         if not (group := check_group(group_id)):
+# #         if not (group := check_group(group_id)):
 #             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 #
 #         group_interest = [intrst for intrst in group.interests if intrst.name == name][

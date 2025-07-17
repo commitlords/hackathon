@@ -1,9 +1,12 @@
 import os
+from datetime import timedelta
 
 ENV = "development"
 DEBUG = True
 
 JWT_SECRET_KEY = "JWT_SECRETS"
+JWT_IDENTITY_CLAIM = "identity"
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=10)
 
 USER = os.environ.get("USER", "docker")
 PASSWORD = os.environ.get("PASSWORD", "docker")

@@ -8,9 +8,6 @@ GROUP_PUT_MODEL = Model(
         "groupName": fields.String(required=True, description="Name of the group"),
         "district": fields.String(required=False, description="District of the group"),
         "password": fields.String(required=True, description="password of the group"),
-        "updatedBy": fields.String(
-            required=True, description="member who is updating the group"
-        ),
     },
 )
 GROUP_INPUT_MODEL = GROUP_PUT_MODEL.clone(
