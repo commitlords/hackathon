@@ -105,6 +105,7 @@ def create_app() -> Flask:
     # register jwt error handlers
     register_jwt_error_handler(api_v1)
     register_jwt_error_handler(api_v2)
+
     # Add cli command options
     app.cli.add_command(create_db)
     app.cli.add_command(drop_db)
