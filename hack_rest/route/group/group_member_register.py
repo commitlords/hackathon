@@ -79,7 +79,7 @@ class AddMember(Resource):
                     "age": m.age,
                     "sex": m.sex,
                     "aadhar_no": m.aadhar_no,
-                    "photo_id": m.photo_id,
+                    "photo_id": str(m.photo_id),
                 }
             )
 

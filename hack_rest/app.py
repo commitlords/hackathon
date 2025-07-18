@@ -13,11 +13,12 @@ from flask_jwt_extended.exceptions import (
     RevokedTokenError,
     WrongTokenError,
 )
-from werkzeug.exceptions import HTTPException, UnprocessableEntity
+from jwt import ExpiredSignatureError
 
 from hack_rest.api_v1 import API_V1_NAMESPACES, api_v1, api_v1_bp
 from hack_rest.api_v2 import API_V2_NAMESPACES, api_v2, api_v2_bp
 from hack_rest.database import db
+from hack_rest.route.utils.custom_errors import BaseError
 from hack_rest.route.utils.url_converters import GUIDConverter
 
 logger = logging.getLogger(__name__)
@@ -46,32 +47,52 @@ def drop_db():
     click.echo("tables dropped successfully")
 
 
-def register_jwt_error_handler(api):
+def register_error_handler(api):
     @api.errorhandler(NoAuthorizationError)
     def handle_no_auth(error):
         return {
-            "error": "Authorization Required",
+            "errorCode": "Authorization Required",
             "message": str(error),
         }, HTTPStatus.FORBIDDEN
 
     @api.errorhandler(InvalidHeaderError)
     def handle_invalid_header(error):
-        return {"error": "Invalid Header", "message": str(error)}, HTTPStatus.FORBIDDEN
+        return {
+            "errorCode": "Invalid Header",
+            "message": str(error),
+        }, HTTPStatus.FORBIDDEN
 
     @api.errorhandler(WrongTokenError)
     def handle_wrong_token(error):
-        return {"error": "Wrong Token", "message": str(error)}, HTTPStatus.FORBIDDEN
+        return {"errorCode": "Wrong Token", "message": str(error)}, HTTPStatus.FORBIDDEN
 
     @api.errorhandler(RevokedTokenError)
     def handle_revoked_token(error):
-        return {"error": "Revoked Token", "message": str(error)}, HTTPStatus.FORBIDDEN
+        return {
+            "errorCode": "Revoked Token",
+            "message": str(error),
+        }, HTTPStatus.FORBIDDEN
+
+    @api.errorhandler(ExpiredSignatureError)
+    def handle_expired_signature(error):
+        return {
+            "errorCode": "Expired Signature",
+            "message": str(error),
+        }, HTTPStatus.FORBIDDEN
 
     @api.errorhandler(Exception)
     def handle_generic_error(error):
         logger.exception(f"Error: {str(error)}")
-        if isinstance(error, HTTPException):
-            raise error
-        raise UnprocessableEntity(str(error))
+        if isinstance(error, BaseError):
+            return {
+                "message": getattr(error, "message", "description"),
+                "errorCode": getattr(error, "error_code", "PROCESSING_ERROR"),
+            }
+
+        return {
+            "message": "Internal Server Error",
+            "errorCode": "PROCESSING_ERROR",
+        }, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_app() -> Flask:
@@ -103,8 +124,8 @@ def create_app() -> Flask:
     configure_namespaces(API_V2_NAMESPACES, api_v2)
 
     # register jwt error handlers
-    register_jwt_error_handler(api_v1)
-    register_jwt_error_handler(api_v2)
+    register_error_handler(api_v1)
+    register_error_handler(api_v2)
 
     # Add cli command options
     app.cli.add_command(create_db)
