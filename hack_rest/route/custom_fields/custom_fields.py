@@ -46,3 +46,16 @@ class GUID(fields.String, ConvertableField):
             return value and UUID(value)
         except (TypeError, ValueError, AttributeError):
             return {"message": f"Invalid GUID value {value}"}, HTTPStatus.BAD_REQUEST
+
+
+class DateTime(fields.DateTime):
+    """custom datetime"""
+
+    def format(self, value):
+        dt_str = super().format(value)
+        # remove milliseconds
+        if "." in dt_str:
+            dt_str = dt_str.split(".")[0]
+        if "T" in dt_str:
+            dt_str = dt_str.replace("T", " ")
+        return dt_str

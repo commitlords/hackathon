@@ -1,6 +1,6 @@
 from flask_restx import Model, fields
 
-from hack_rest.route.custom_fields.custom_fields import GUID
+from hack_rest.route.custom_fields.custom_fields import GUID, DateTime
 
 GROUP_PUT_MODEL = Model(
     "GroupPutModel",
@@ -65,10 +65,10 @@ GROUP_MEMBER_MODEL = Model(
 GROUP_MEMBER_OUTPUT_MODEL = GROUP_MEMBER_MODEL.clone(
     "GroupMemberOut",
     {
-        "createdAt": fields.String(
+        "createdAt": DateTime(
             required=True, description="group member created_at", attribute="created_at"
         ),
-        "updatedAt": fields.String(
+        "updatedAt": DateTime(
             required=True, description="group member updated_at", attribute="updated_at"
         ),
     },
@@ -90,10 +90,10 @@ GROUP_OUTPUT_MODEL = Model(
             description="member who is creating the group",
             attribute="created_by",
         ),
-        "createdAt": fields.String(
+        "createdAt": DateTime(
             required=True, description="group created_at", attribute="created_at"
         ),
-        "updatedAt": fields.String(
+        "updatedAt": DateTime(
             required=True, description="group created_at", attribute="updated_at"
         ),
         "members": fields.List(
