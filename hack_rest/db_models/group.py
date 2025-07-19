@@ -37,10 +37,11 @@ class GroupBusinessInterest(PrintMixin, db.Model):
     __tablename__ = "group_interests"
     __bind_key__ = "dhs"
 
+    id_seq = Sequence("group_interest_seq", start=1)
+    id = db.Column("group_interest_id", db.Integer, id_seq, primary_key=True)
     group_id = db.Column(
         "group_id",
         db.ForeignKey(Group.id, name="fk_interest_group_id"),
-        primary_key=True,
     )
     name = db.Column("name", db.String(256))
     group = relationship(Group, back_populates="interests")

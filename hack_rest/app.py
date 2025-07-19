@@ -87,7 +87,7 @@ def register_error_handler(api):
             return {
                 "message": getattr(error, "message", "description"),
                 "errorCode": getattr(error, "error_code", "PROCESSING_ERROR"),
-            }
+            }, error.code
 
         return {
             "message": "Internal Server Error",

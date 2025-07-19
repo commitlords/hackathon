@@ -6,6 +6,7 @@ from flask_restx import Namespace, Resource
 from sqlalchemy.exc import SQLAlchemyError
 
 from hack_rest.database import db
+from hack_rest.db_models.business_categories import BusinessCategory
 from hack_rest.db_models.group import Group, GroupBusinessInterest
 from hack_rest.route.group.common import check_group
 from hack_rest.route.group.models.group_register_model import (
@@ -14,6 +15,7 @@ from hack_rest.route.group.models.group_register_model import (
     GROUP_LOGIN_MODEL,
     GROUP_PUT_MODEL,
 )
+from hack_rest.route.utils.custom_errors import UnprocessableError
 
 GROUP_NS = Namespace("groups", description="Group registration and management")
 
@@ -21,6 +23,12 @@ GROUP_NS.models[GROUP_INPUT_MODEL.name] = GROUP_INPUT_MODEL
 GROUP_NS.models[GROUP_LOGIN_MODEL.name] = GROUP_LOGIN_MODEL
 GROUP_NS.models[GROUP_PUT_MODEL.name] = GROUP_PUT_MODEL
 GROUP_NS.models[GROUP_INTEREST_MODEL.name] = GROUP_INTEREST_MODEL
+
+
+def fetch_all_business_categories():
+    """fetch names of all business categories"""
+    results = db.session.query(BusinessCategory.name).all()
+    return [r.name for r in results]
 
 
 @GROUP_NS.route("/register")
@@ -101,6 +109,12 @@ class AddInterest(Resource):
 
         interest = request.json["interest"]
         try:
+            bu_categories = fetch_all_business_categories()
+            if interest not in bu_categories:
+                raise UnprocessableError(
+                    f"interest {interest} not found in business categories"
+                )
+
             group_interest = GroupBusinessInterest(group_id=group_id, name=interest)
             db.session.add(group_interest)
             db.session.commit()
@@ -123,7 +137,13 @@ class AddInterest(Resource):
 
         interest = request.json["interest"]
         try:
-            group_interest = GroupBusinessInterest(group_id=group_id, interest=interest)
+            bu_categories = fetch_all_business_categories()
+            if interest not in bu_categories:
+                raise UnprocessableError(
+                    f"interest {interest} not found in business categories"
+                )
+
+            group_interest = GroupBusinessInterest(group_id=group_id, name=interest)
             db.session.add(group_interest)
             db.session.commit()
         except SQLAlchemyError as err:
@@ -218,30 +238,30 @@ class GroupDetail(Resource):
         return {"groupID": group.id}, HTTPStatus.OK
 
 
-# @GROUP_NS.route("/<int:group_id>/interests/<str:name>")
-# class DeleteInterest(Resource):
-#
-#     @jwt_required()
-#     def delete(self, group_id, name):
-#         """delete a group interest"""
-#       identity = get_jwt_identity()
-#       if identity.get("group_id") != group_id:
-#             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
-# #         if not (group := check_group(group_id)):
-#             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
-#
-#         group_interest = [intrst for intrst in group.interests if intrst.name == name][
-#             0
-#         ]
-#
-#         try:
-#             db.session.delete(group_interest)
-#             db.session.commit()
-#         except SQLAlchemyError as err:
-#             db.session.rollback()
-#             return {
-#                 "message": "Error in deleting group interest",
-#                 "details": str(err),
-#             }, HTTPStatus.INTERNAL_SERVER_ERROR
-#
-#         return "", HTTPStatus.NO_CONTENT
+@GROUP_NS.route("/<int:group_id>/interests/<string:name>")
+class DeleteInterest(Resource):
+
+    @jwt_required()
+    def delete(self, group_id, name):
+        """delete a group interest"""
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        if not (group := check_group(group_id)):
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        group_interest = [intrst for intrst in group.interests if intrst.name == name][
+            0
+        ]
+        try:
+            db.session.delete(group_interest)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": "Error in deleting group interest",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return "", HTTPStatus.NO_CONTENT

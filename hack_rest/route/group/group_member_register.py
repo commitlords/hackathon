@@ -106,7 +106,7 @@ class UpdateMember(Resource):
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
-        member = [m for m in group.members if m.member_id == member_id][0]
+        member = [m for m in group.members if m.id == member_id][0]
         if not member:
             return {
                 "message": f"member with {member_id} not found"
@@ -119,7 +119,7 @@ class UpdateMember(Resource):
         if photo_id:
             photo = (
                 db.session.query(AttachmentModel)
-                .filter_by(AttachmentModel.guid == photo_id)
+                .filter(AttachmentModel.guid == photo_id)
                 .one_or_none()
             )
 
@@ -127,11 +127,11 @@ class UpdateMember(Resource):
                 return {"message": "Invalid photo id"}, HTTPStatus.BAD_REQUEST
 
         try:
-            setattr(member, data.get("name", member.name))
-            setattr(member, data.get("age", member.age))
-            setattr(member, data.get("sex", member.sex))
-            setattr(member, data.get("aadhar", member.aadhar_no))
-            setattr(member, data.get("photoID", member.photo_id))
+            setattr(member, "name", data.get("name", member.name))
+            setattr(member, "age", data.get("age", member.age))
+            setattr(member, "sex", data.get("sex", member.sex))
+            setattr(member, "aadhar_no", data.get("aadhar", member.aadhar_no))
+            setattr(member, "photo_id", data.get("photoID", member.photo_id))
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()
@@ -140,7 +140,7 @@ class UpdateMember(Resource):
                 "details": str(err),
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
-        return {"member_id": member.id}, HTTPStatus.OK
+        return "", HTTPStatus.OK
 
     @jwt_required()
     def delete(self, group_id, member_id):
@@ -152,7 +152,7 @@ class UpdateMember(Resource):
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
-        member = [m for m in group.members if m.member_id == member_id][0]
+        member = [m for m in group.members if m.id == member_id][0]
         if not member:
             return {
                 "message": f"member with {member_id} not found"
