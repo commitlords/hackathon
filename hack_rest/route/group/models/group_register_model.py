@@ -29,11 +29,7 @@ GROUP_LOGIN_MODEL = Model(
 
 GROUP_INTEREST_MODEL = Model(
     "GroupInterestModel",
-    {
-        "interest": fields.String(
-            required=True, description="business interest category"
-        )
-    },
+    {"name": fields.String(required=True, description="business interest category")},
 )
 
 GROUP_MEMBER_MODEL = Model(
@@ -42,9 +38,69 @@ GROUP_MEMBER_MODEL = Model(
         "name": fields.String(required=True, description="name of group member"),
         "age": fields.Integer(required=False, description="age of group member"),
         "sex": fields.String(required=False, description="sex of group member"),
-        "aadhar": fields.String(
-            required=True, description="aadhar no. of group member"
+        "aadharNumber": fields.String(
+            required=True,
+            description="Aadhar no. of group member",
+            attribute="aadhar_number",
         ),
-        "photoID": GUID(description="phot id of the group member"),
+        "panNumber": fields.String(
+            required=True, description="PAN no. of group member", attribute="pan_number"
+        ),
+        "bankAccountNumber": fields.String(
+            required=True,
+            description="Bank account no. of group member",
+            attribute="bank_account_number",
+        ),
+        "bankIfscCode": fields.String(
+            required=True,
+            description="Bank IfSC code of group member",
+            attribute="bank_ifsc_code",
+        ),
+        "photoID": GUID(
+            description="phot id of the group member", attribute="photo_id"
+        ),
+    },
+)
+
+GROUP_MEMBER_OUTPUT_MODEL = GROUP_MEMBER_MODEL.clone(
+    "GroupMemberOut",
+    {
+        "createdAt": fields.String(
+            required=True, description="group member created_at", attribute="created_at"
+        ),
+        "updatedAt": fields.String(
+            required=True, description="group member updated_at", attribute="updated_at"
+        ),
+    },
+)
+
+
+GROUP_OUTPUT_MODEL = Model(
+    "GroupOutputModel",
+    {
+        "groupName": fields.String(
+            required=True, description="Name of the group", attribute="name"
+        ),
+        "district": fields.String(required=False, description="District of the group"),
+        "loginID": fields.String(
+            required=True, description="Login ID of the group", attribute="login_id"
+        ),
+        "createdBy": fields.String(
+            required=True,
+            description="member who is creating the group",
+            attribute="created_by",
+        ),
+        "createdAt": fields.String(
+            required=True, description="group created_at", attribute="created_at"
+        ),
+        "updatedAt": fields.String(
+            required=True, description="group created_at", attribute="updated_at"
+        ),
+        "members": fields.List(
+            fields.Nested(GROUP_MEMBER_OUTPUT_MODEL), description="members of group"
+        ),
+        "interests": fields.List(
+            fields.Nested(GROUP_INTEREST_MODEL), description="group interest"
+        ),
     },
 )

@@ -13,6 +13,8 @@ from hack_rest.route.group.models.group_register_model import (
     GROUP_INPUT_MODEL,
     GROUP_INTEREST_MODEL,
     GROUP_LOGIN_MODEL,
+    GROUP_MEMBER_OUTPUT_MODEL,
+    GROUP_OUTPUT_MODEL,
     GROUP_PUT_MODEL,
 )
 from hack_rest.route.utils.custom_errors import UnprocessableError
@@ -20,9 +22,11 @@ from hack_rest.route.utils.custom_errors import UnprocessableError
 GROUP_NS = Namespace("groups", description="Group registration and management")
 
 GROUP_NS.models[GROUP_INPUT_MODEL.name] = GROUP_INPUT_MODEL
+GROUP_NS.models[GROUP_OUTPUT_MODEL.name] = GROUP_OUTPUT_MODEL
 GROUP_NS.models[GROUP_LOGIN_MODEL.name] = GROUP_LOGIN_MODEL
 GROUP_NS.models[GROUP_PUT_MODEL.name] = GROUP_PUT_MODEL
 GROUP_NS.models[GROUP_INTEREST_MODEL.name] = GROUP_INTEREST_MODEL
+GROUP_NS.models[GROUP_MEMBER_OUTPUT_MODEL.name] = GROUP_MEMBER_OUTPUT_MODEL
 
 
 def fetch_all_business_categories():
@@ -93,7 +97,7 @@ class GroupLogin(Resource):
         access_token = create_access_token(
             identity={"group_id": group.id, "creator": group.created_by}
         )
-        return {"access_token": access_token}, HTTPStatus.OK
+        return {"accessToken": access_token}, HTTPStatus.OK
 
 
 @GROUP_NS.route("/<int:group_id>/interests")
@@ -107,7 +111,7 @@ class AddInterest(Resource):
         if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
-        interest = request.json["interest"]
+        interest = request.json["name"]
         try:
             bu_categories = fetch_all_business_categories()
             if interest not in bu_categories:
@@ -135,7 +139,7 @@ class AddInterest(Resource):
         if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
-        interest = request.json["interest"]
+        interest = request.json["name"]
         try:
             bu_categories = fetch_all_business_categories()
             if interest not in bu_categories:
@@ -161,6 +165,7 @@ class AddInterest(Resource):
 class GroupDetail(Resource):
 
     @jwt_required()
+    @GROUP_NS.marshal_with(GROUP_OUTPUT_MODEL)
     def get(self, group_id):
         """get group details"""
         identity = get_jwt_identity()
@@ -170,27 +175,7 @@ class GroupDetail(Resource):
         group = check_group(group_id)
         if not group:
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
-
-        members = []
-        for m in group.members:
-            members.append(
-                {
-                    "member_id": m.id,
-                    "name": m.name,
-                    "age": m.age,
-                    "sex": m.sex,
-                    "aadhar_no": m.aadhar_no,
-                    "photo_id": str(m.photo_id),
-                }
-            )
-
-        return {
-            "group_id": group.id,
-            "group_name": group.name,
-            "district": group.district,
-            "interests": [gi.name for gi in group.interests],
-            "members": members
-        }, HTTPStatus.OK
+        return group
 
     @jwt_required()
     def delete(self, group_id):
@@ -265,9 +250,9 @@ class DeleteInterest(Resource):
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
-        group_interest = [intrst for intrst in group.interests if intrst.name == name][
-            0
-        ]
+        group_interest = [
+            interest for interest in group.interests if interest.name == name
+        ][0]
         try:
             db.session.delete(group_interest)
             db.session.commit()

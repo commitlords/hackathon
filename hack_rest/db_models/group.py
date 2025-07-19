@@ -59,7 +59,12 @@ class GroupMember(PrintMixin, db.Model, CreatedAtMixin, UpdatedAtByMixin):
     name = db.Column("name", db.String, nullable=False)
     age = db.Column("age", db.Integer)
     sex = db.Column("sex", db.String(10))
-    aadhar_no = db.Column("aadhar_no", db.String(12), nullable=False)
+    aadhar_number = db.Column("aadhar_number", db.String(12), nullable=False)
+    pan_number = db.Column("pan_no", db.String(25), nullable=False)
+    bank_account_number = db.Column(
+        "bank_account_number", db.String(35), nullable=False
+    )
+    bank_ifsc_code = db.Column("bank_ifsc_code", db.String(35), nullable=False)
     photo_id = db.Column(
         "photo_id",
         GUID,

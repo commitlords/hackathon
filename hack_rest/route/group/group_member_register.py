@@ -9,12 +9,17 @@ from hack_rest.database import db
 from hack_rest.db_models.group import GroupMember
 from hack_rest.db_models.uploads import AttachmentModel
 from hack_rest.route.group.common import check_group
-from hack_rest.route.group.models.group_register_model import GROUP_MEMBER_MODEL
+from hack_rest.route.group.models.group_register_model import (
+    GROUP_MEMBER_MODEL,
+    GROUP_MEMBER_OUTPUT_MODEL,
+)
 from hack_rest.route.utils.response import parse_json
+from hack_rest.route.utils.util_functions import camel_to_snake_case
 
 GROUP_NS = Namespace("groups", description="group member registration and management")
 
 GROUP_NS.models[GROUP_MEMBER_MODEL.name] = GROUP_MEMBER_MODEL
+GROUP_NS.models[GROUP_MEMBER_OUTPUT_MODEL.name] = GROUP_MEMBER_OUTPUT_MODEL
 
 
 @GROUP_NS.route("/groups/<int:group_id>/members")
@@ -46,7 +51,10 @@ class AddMember(Resource):
                 name=data.get("name"),
                 age=data.get("age"),
                 sex=data.get("sex"),
-                aadhar_no=data.get("aadhar"),
+                aadhar_number=data.get("aadharNumber"),
+                pan_number=data.get("panNumber"),
+                bank_account_number=data.get("bankAccountNumber"),
+                bank_ifsc_code=data.get("bankIfscCode"),
                 photo_id=data.get("photoID"),
             )
             db.session.add(member)
@@ -61,6 +69,7 @@ class AddMember(Resource):
         return {"member_id": member.id}, HTTPStatus.CREATED
 
     @jwt_required()
+    @GROUP_NS.marshal_with(GROUP_MEMBER_OUTPUT_MODEL)
     def get(self, group_id):
         """get member details of a group"""
         identity = get_jwt_identity()
@@ -70,25 +79,7 @@ class AddMember(Resource):
         if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
-        members = []
-        for m in group.members:
-            members.append(
-                {
-                    "member_id": m.id,
-                    "name": m.name,
-                    "age": m.age,
-                    "sex": m.sex,
-                    "aadhar_no": m.aadhar_no,
-                    "photo_id": str(m.photo_id),
-                }
-            )
-
-        return {
-            "group_id": group.id,
-            "group_name": group.name,
-            "district": group.district,
-            "members": members,
-        }, HTTPStatus.OK
+        return group.members, HTTPStatus.OK
 
 
 @GROUP_NS.route("/groups/<int:group_id>/members/<int:member_id>")
@@ -127,11 +118,9 @@ class UpdateMember(Resource):
                 return {"message": "Invalid photo id"}, HTTPStatus.BAD_REQUEST
 
         try:
-            setattr(member, "name", data.get("name", member.name))
-            setattr(member, "age", data.get("age", member.age))
-            setattr(member, "sex", data.get("sex", member.sex))
-            setattr(member, "aadhar_no", data.get("aadhar", member.aadhar_no))
-            setattr(member, "photo_id", data.get("photoID", member.photo_id))
+            for attr in data.keys():
+                attr_in_db = camel_to_snake_case(attr)
+                setattr(member, attr_in_db, data.get(attr, getattr(member, attr_in_db)))
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()
