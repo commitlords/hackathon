@@ -132,6 +132,21 @@ class UpdateMember(Resource):
         return "", HTTPStatus.OK
 
     @jwt_required()
+    @GROUP_NS.marshal_with(GROUP_MEMBER_OUTPUT_MODEL)
+    def get(self, group_id, member_id):
+        """get member of a group details"""
+
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        if not (group := check_group(group_id)):
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        member = [m for m in group.members if m.id == member_id][0]
+        return member, HTTPStatus.OK
+
+    @jwt_required()
     def delete(self, group_id, member_id):
         """delete a member of a group"""
         identity = get_jwt_identity()

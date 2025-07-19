@@ -131,6 +131,19 @@ class AddInterest(Resource):
 
         return {"interest": interest}, HTTPStatus.CREATED
 
+    @jwt_required()
+    @GROUP_NS.marshal_list_with(GROUP_INTEREST_MODEL)
+    def get(self, group_id):
+        """get a group interests"""
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+        group = check_group(group_id)
+        if not group:
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        return group.interests, HTTPStatus.OK
+
     @GROUP_NS.expect(GROUP_INTEREST_MODEL)
     @jwt_required()
     def put(self, group_id):
