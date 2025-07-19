@@ -171,11 +171,25 @@ class GroupDetail(Resource):
         if not group:
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
+        members = []
+        for m in group.members:
+            members.append(
+                {
+                    "member_id": m.id,
+                    "name": m.name,
+                    "age": m.age,
+                    "sex": m.sex,
+                    "aadhar_no": m.aadhar_no,
+                    "photo_id": str(m.photo_id),
+                }
+            )
+
         return {
             "group_id": group.id,
             "group_name": group.name,
             "district": group.district,
             "interests": [gi.name for gi in group.interests],
+            "members": members
         }, HTTPStatus.OK
 
     @jwt_required()
