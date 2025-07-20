@@ -6,8 +6,8 @@ from flask_restx import Namespace, Resource
 from sqlalchemy.exc import SQLAlchemyError
 
 from hack_rest.database import db
-from hack_rest.db_models.business_categories import BusinessCategory
 from hack_rest.db_models.group import Group, GroupBusinessInterest
+from hack_rest.route.common import fetch_all_business_categories
 from hack_rest.route.group.common import check_group
 from hack_rest.route.group.models.group_register_model import (
     GROUP_INPUT_MODEL,
@@ -28,12 +28,6 @@ GROUP_NS.models[GROUP_LOGIN_MODEL.name] = GROUP_LOGIN_MODEL
 GROUP_NS.models[GROUP_PUT_MODEL.name] = GROUP_PUT_MODEL
 GROUP_NS.models[GROUP_INTEREST_MODEL.name] = GROUP_INTEREST_MODEL
 GROUP_NS.models[GROUP_MEMBER_OUTPUT_MODEL.name] = GROUP_MEMBER_OUTPUT_MODEL
-
-
-def fetch_all_business_categories():
-    """fetch names of all business categories"""
-    results = db.session.query(BusinessCategory.name).all()
-    return [r.name for r in results]
 
 
 @GROUP_NS.route("/register")
