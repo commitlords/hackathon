@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask_restx import Api, apidoc
 
+from hack_rest.route.admin.resources import ADMIN_NS
 from hack_rest.route.group.group_member_register import GROUP_NS as GROUP_NS_2
 from hack_rest.route.group.group_register import GROUP_NS
 from hack_rest.route.uploads.resources import UPLOADS_NS
@@ -25,4 +26,4 @@ api_v1 = Api(
 
 apidoc.apidoc.url_prefix = V1_PREFIX
 
-API_V1_NAMESPACES = [GROUP_NS, GROUP_NS_2, UPLOADS_NS]
+API_V1_NAMESPACES = [ADMIN_NS, GROUP_NS, GROUP_NS_2, UPLOADS_NS]

@@ -20,7 +20,7 @@ def admin_required(fn):
     @jwt_required()
     def wrapper(*args, **kwargs):
         identity = get_jwt_identity()
-        if identity.get("role").upper() == "ADMIN":
+        if identity.get("role").upper() != "ADMIN":
             raise AdminOnly("Admin Access Required")
 
         return fn(*args, **kwargs)

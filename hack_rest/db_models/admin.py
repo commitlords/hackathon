@@ -6,6 +6,7 @@ from hack_rest.database import db
 
 class Admin(db.Model):
     """admin model"""
+
     __tablename__ = "admin"
     __bind_key__ = "dhs"
 

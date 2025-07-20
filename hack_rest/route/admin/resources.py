@@ -28,6 +28,6 @@ class AdminLogin(Resource):
             return {"message": "Invalid Admin credentials"}, HTTPStatus.UNAUTHORIZED
 
         access_token = create_access_token(
-            identity={"admin_id": admin.login_id, "role": "admin"}
+            identity={"admin_id": admin.login_id, "role": "Admin"}
         )
         return {"accessToken": access_token}, HTTPStatus.OK

@@ -137,7 +137,7 @@ class AddInterest(Resource):
     def get(self, group_id):
         """get a group interests"""
         identity = get_jwt_identity()
-        if identity.get("group_id") != group_id or identity.get("role") != "Admin":
+        if identity.get("group_id") != group_id and identity.get("role") != "Admin":
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
         group = check_group(group_id)
         if not group:
@@ -183,7 +183,7 @@ class GroupDetail(Resource):
     def get(self, group_id):
         """get group details"""
         identity = get_jwt_identity()
-        if identity.get("group_id") != group_id or identity.get("role") != "Admin":
+        if identity.get("group_id") != group_id and identity.get("role") != "Admin":
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         group = check_group(group_id)
