@@ -1,6 +1,6 @@
 from http.client import HTTPException
 
-from werkzeug.exceptions import BadRequest, UnprocessableEntity
+from werkzeug.exceptions import BadRequest, Forbidden, UnprocessableEntity
 
 # pylint: disable=no-member
 
@@ -36,3 +36,8 @@ class FileSizeError(BaseError):
 class FileExtnError(BaseError):
     description = "File extension not allowed"
     code = BadRequest.code
+
+
+class AdminOnly(BaseError):
+    description = "Only Admin Allowed to access the resource"
+    code = Forbidden.code

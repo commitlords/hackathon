@@ -73,7 +73,7 @@ class AddMember(Resource):
     def get(self, group_id):
         """get member details of a group"""
         identity = get_jwt_identity()
-        if identity.get("group_id") != group_id:
+        if identity.get("group_id") != group_id or identity.get("role") != "Admin":
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         if not (group := check_group(group_id)):
@@ -137,7 +137,7 @@ class UpdateMember(Resource):
         """get member of a group details"""
 
         identity = get_jwt_identity()
-        if identity.get("group_id") != group_id:
+        if identity.get("group_id") != group_id or identity.get("role") != "Admin":
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         if not (group := check_group(group_id)):
