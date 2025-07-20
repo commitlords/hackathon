@@ -10,6 +10,11 @@ from werkzeug.datastructures import FileStorage
 from hack_rest.database import db
 from hack_rest.db_models.uploads import AttachmentModel
 from hack_rest.route.uploads.models.attachment_model import UPLOADS_MODEL
+from hack_rest.route.utils.custom_errors import (
+    FileExtnError,
+    FileSizeError,
+    UnprocessableError,
+)
 
 UPLOADS_NS = Namespace("uploads", description="REST service to upload attachments")
 
@@ -40,22 +45,19 @@ class AttachmentUpload(Resource):
 
     @jwt_required()
     @UPLOADS_NS.expect(UPLOAD_PARSER)
-    @UPLOADS_NS.marshal_with(UPLOADS_MODEL)
+    @UPLOADS_NS.marshal_with(UPLOADS_MODEL, code=200)
     def post(self):
         args = UPLOAD_PARSER.parse_args()
         file_obj: FileStorage = args["attachment"]
-
         if not file_obj:
-            return {"message": "No file uploaded"}, HTTPStatus.BAD_REQUEST
+            raise UnprocessableError("No file uploaded")
 
         ext = file_obj.filename.rsplit(".", 1)[-1].lower()
         if ext not in ALLOWED_EXTS:
-            return {"message": "Only JPG and PNG allowed"}, HTTPStatus.BAD_REQUEST
+            raise FileExtnError("Only JPG and PNG allowed")
 
         if not _if_size_less_than_max(file_obj):
-            return {
-                "message": "File size more than max allowed"
-            }, HTTPStatus.BAD_REQUEST
+            raise FileSizeError("File size more than max allowed")
 
         filename = file_obj.filename
         content = file_obj.stream.read()
@@ -66,10 +68,7 @@ class AttachmentUpload(Resource):
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()
-            return {
-                "message": "Error in saving attachment",
-                "details": str(err),
-            }, HTTPStatus.INTERNAL_SERVER_ERROR
+            raise UnprocessableError("Error in saving attachment") from err
 
         return upload
 

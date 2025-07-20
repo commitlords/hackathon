@@ -1,6 +1,6 @@
 from http.client import HTTPException
 
-from werkzeug.exceptions import UnprocessableEntity
+from werkzeug.exceptions import BadRequest, UnprocessableEntity
 
 # pylint: disable=no-member
 
@@ -26,3 +26,13 @@ class UnprocessableError(BaseError):
 
     description = "The server encounterted an unexpected condition."
     code = UnprocessableEntity.code
+
+
+class FileSizeError(BaseError):
+    description = "File size bigger than allowed threshold"
+    code = BadRequest.code
+
+
+class FileExtnError(BaseError):
+    description = "File extension not allowed"
+    code = BadRequest.code
