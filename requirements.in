@@ -7,3 +7,4 @@ Flask-cors
 black
 isort
 pylint
+gunicorn
