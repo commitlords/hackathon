@@ -18,6 +18,7 @@ from hack_rest.route.group.models.group_register_model import (
     GROUP_PUT_MODEL,
 )
 from hack_rest.route.utils.custom_errors import UnprocessableError
+from hack_rest.route.utils.util_functions import admin_required
 
 GROUP_NS = Namespace("groups", description="Group registration and management")
 
@@ -273,6 +274,41 @@ class DeleteInterest(Resource):
             db.session.rollback()
             return {
                 "message": "Error in deleting group interest",
+                "details": str(err),
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
+
+        return "", HTTPStatus.NO_CONTENT
+
+
+@GROUP_NS.route("")
+@GROUP_NS.doc(security="Bearer Auth")
+class AllGroupDetail(Resource):
+
+    @admin_required
+    @GROUP_NS.marshal_list_with(GROUP_OUTPUT_MODEL)
+    def get(self):
+        """get group details"""
+        groups = db.session.query(Group).all()
+        return groups, HTTPStatus.OK
+
+    @jwt_required()
+    def delete(self, group_id):
+        """delete a group"""
+        identity = get_jwt_identity()
+        if identity.get("group_id") != group_id:
+            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
+
+        group = check_group(group_id)
+        if not group:
+            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
+
+        try:
+            db.session.delete(group)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            return {
+                "message": f"Error in deleting group {group_id}",
                 "details": str(err),
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
