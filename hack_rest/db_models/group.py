@@ -25,6 +25,7 @@ class Group(PrintMixin, db.Model, CreatedAtMixin, CreatedByMixin, UpdatedAtByMix
     password_hash = db.Column("password_hash", db.String, nullable=False)
     interests = relationship("GroupBusinessInterest", back_populates="group")
     members = relationship("GroupMember", back_populates="group")
+    applications = db.relationship("Application", back_populates="group")
 
     def set_password(self, raw_password):
         self.password_hash = generate_password_hash(raw_password)

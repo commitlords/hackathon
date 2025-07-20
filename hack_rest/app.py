@@ -18,6 +18,7 @@ from jwt import ExpiredSignatureError
 from hack_rest.api_v1 import API_V1_NAMESPACES, api_v1, api_v1_bp
 from hack_rest.api_v2 import API_V2_NAMESPACES, api_v2, api_v2_bp
 from hack_rest.database import db
+from hack_rest.db_models.admin import Admin
 from hack_rest.route.utils.custom_errors import BaseError
 from hack_rest.route.utils.url_converters import GUIDConverter
 
@@ -35,7 +36,21 @@ def create_db():
     """create database tables"""
     click.echo("creating app related tables")
     db.create_all()
-    click.echo("tables created successfully")
+    click.echo("kjojtables created successfully")
+
+
+@click.command("add_admin", help="create an admin")
+@click.argument("name")
+@click.argument("password")
+@with_appcontext
+def add_admin(name, password):
+    """add an admin"""
+    click.echo(f"creating an admin: {name}")
+    admin = Admin(login_id=name)
+    admin.set_password(password)
+    db.session.add(admin)
+    db.session.commit()
+    click.echo(f"admin {name} created")
 
 
 @click.command("drop_db", help="drop app related tables")
@@ -130,6 +145,7 @@ def create_app() -> Flask:
     # Add cli command options
     app.cli.add_command(create_db)
     app.cli.add_command(drop_db)
+    app.cli.add_command(add_admin)
 
     return app
 
