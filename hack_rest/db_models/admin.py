@@ -6,6 +6,8 @@ from hack_rest.database import db
 
 class Admin(db.Model):
     """admin model"""
+    __tablename__ = "admin"
+    __bind_key__ = "dhs"
 
     id_seq = Sequence("admin_seq", start=555, increment=111)
     id = db.Column("id", db.Integer, id_seq, primary_key=True)
