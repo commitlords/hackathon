@@ -11,6 +11,13 @@ ENV PYTHONBUFFERED=1 \
 WORKDIR /app
 
 # Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
