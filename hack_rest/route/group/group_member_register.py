@@ -22,7 +22,7 @@ GROUP_NS.models[GROUP_MEMBER_MODEL.name] = GROUP_MEMBER_MODEL
 GROUP_NS.models[GROUP_MEMBER_OUTPUT_MODEL.name] = GROUP_MEMBER_OUTPUT_MODEL
 
 
-@GROUP_NS.route("/groups/<int:group_id>/members")
+@GROUP_NS.route("/<int:group_id>/members")
 class AddMember(Resource):
 
     @jwt_required()
@@ -82,7 +82,7 @@ class AddMember(Resource):
         return group.members, HTTPStatus.OK
 
 
-@GROUP_NS.route("/groups/<int:group_id>/members/<int:member_id>")
+@GROUP_NS.route("/<int:group_id>/members/<int:member_id>")
 class UpdateMember(Resource):
 
     @jwt_required()
