@@ -2,7 +2,7 @@
 from flask_restx import Model, fields
 
 BANK_ACCOUNT_VALIDATE = Model(
-    "BankAccountValidate", {
+    "BankAccountValidateModel", {
         "account_number": fields.Integer(required=True),
         "aadhar_number": fields.Integer(required=True),
         "pan_number": fields.String(required=True),

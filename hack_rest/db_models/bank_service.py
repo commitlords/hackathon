@@ -33,6 +33,6 @@ class BankAccount(db.Model):
     aadhar_number = db.Column(db.BigInteger, nullable=False)
     pan_card_number = db.Column(db.String(10), nullable=False)
     account_type = db.Column(db.String(10), nullable=False)
-    mobile_number = db.Column(db.Integer(10), nullable=False)
+    mobile_number = db.Column(db.Integer, nullable=False)
     email_id = db.Column(db.String(50))
     branch_id = db.Column(db.Integer, db.ForeignKey("bank_branch.branch_id"), nullable=False)

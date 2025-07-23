@@ -4,15 +4,18 @@ from http import HTTPStatus
 from flask import request
 from flask_restx import Namespace, Resource
 from hack_rest.db_models.bank_service import BankAccount, BankBranch
-from hack_rest.db import db
+from hack_rest.database import db
 from hack_rest.db_models.group import Group, GroupMember
 from hack_rest.route.banking_service.models.bank_account_validate import BANK_ACCOUNT_VALIDATE, BANK_VALIDATE_RESPONSE
 from hack_rest.route.utils.util_functions import admin_required
 
 BANK_SERVICE_NS = Namespace("bank", description="Banking Service APIs")
 
+BANK_SERVICE_NS.models[BANK_ACCOUNT_VALIDATE.name] = BANK_ACCOUNT_VALIDATE
+BANK_SERVICE_NS.models[BANK_VALIDATE_RESPONSE.name] = BANK_VALIDATE_RESPONSE
 
-@BANK_SERVICE_NS.route("<group_id>/loan_distribute")
+
+@BANK_SERVICE_NS.route("/<group_id>/loan_distribute")
 class LoanDistribute(Resource):
     """Distribute Loan"""
 
