@@ -9,16 +9,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from hack_rest.database import db
 from hack_rest.db_models.applications import Application
 from hack_rest.route.application.models.application_models import (
+    APPLICATION_OUT_MODEL,
     APPLICATION_REGISTER_MODEL,
 )
 from hack_rest.route.group.common import check_group
 from hack_rest.route.utils.custom_errors import UnprocessableError
+from hack_rest.route.utils.util_functions import admin_required
 
 APPLICATION_NS = Namespace(
     "applications", description="application register and management"
 )
 
 APPLICATION_NS.models[APPLICATION_REGISTER_MODEL.name] = APPLICATION_REGISTER_MODEL
+APPLICATION_NS.models[APPLICATION_OUT_MODEL.name] = APPLICATION_OUT_MODEL
 
 
 @APPLICATION_NS.route("")
@@ -66,3 +69,13 @@ class ApplicationRegister(Resource):
             raise UnprocessableError("Error in saving application") from err
 
         return {"applicationID": user_application.id}, HTTPStatus.CREATED
+
+    @admin_required
+    @APPLICATION_NS.marshal_list_with(APPLICATION_OUT_MODEL)
+    def get(self):
+        """get all applications"""
+        try:
+            applications = db.session.query(Application).all()
+            return applications, HTTPStatus.OK
+        except SQLAlchemyError as err:
+            raise UnprocessableError("Error in fetching application details") from err
