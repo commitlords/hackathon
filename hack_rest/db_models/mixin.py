@@ -21,8 +21,12 @@ class PrintMixin:
 
 
 class UpdatedAtByMixin:
-    updated_at = Column("updated_at", DateTime, default=datetime.utcnow)
+    updated_at = Column("updated_at", DateTime, default=datetime.now)
     updated_by = Column("updated_by", String(250))
+
+
+class UpdatedAtMixin:
+    updated_at = Column("updated_at", DateTime, default=datetime.now)
 
 
 class CreatedByMixin:
@@ -30,9 +34,9 @@ class CreatedByMixin:
 
 
 class CreatedAtMixin:
-    created_at = Column("created_at", DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column("created_at", DateTime, default=datetime.now, nullable=False)
 
 
 class ValidToMixin:
-    valid_from = Column("valid_from", DateTime, default=datetime.utcnow, nullable=False)
+    valid_from = Column("valid_from", DateTime, default=datetime.now, nullable=False)
     valid_to = Column("valid_to", DateTime, nullable=True)

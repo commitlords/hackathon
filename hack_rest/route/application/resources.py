@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import request
@@ -10,6 +11,7 @@ from hack_rest.database import db
 from hack_rest.db_models.applications import Application
 from hack_rest.route.application.models.application_models import (
     APPLICATION_OUT_MODEL,
+    APPLICATION_PUT_MODEL,
     APPLICATION_REGISTER_MODEL,
 )
 from hack_rest.route.group.common import check_group
@@ -22,6 +24,7 @@ APPLICATION_NS = Namespace(
 
 APPLICATION_NS.models[APPLICATION_REGISTER_MODEL.name] = APPLICATION_REGISTER_MODEL
 APPLICATION_NS.models[APPLICATION_OUT_MODEL.name] = APPLICATION_OUT_MODEL
+APPLICATION_NS.models[APPLICATION_PUT_MODEL.name] = APPLICATION_PUT_MODEL
 
 
 @APPLICATION_NS.route("")
@@ -79,3 +82,32 @@ class ApplicationRegister(Resource):
             return applications, HTTPStatus.OK
         except SQLAlchemyError as err:
             raise UnprocessableError("Error in fetching application details") from err
+
+
+@APPLICATION_NS.route("/<int:application_id>/status")
+class ApplicationUpdate(Resource):
+
+    @admin_required
+    @APPLICATION_NS.expect(APPLICATION_PUT_MODEL)
+    def put(self, application_id):
+        """update application status"""
+        data = request.json
+        try:
+            application = (
+                db.session.query(Application)
+                .filter(Application.id == application_id)
+                .one_or_none()
+            )
+            if not application:
+                return {
+                    "message": f"application {application_id} not found"
+                }, HTTPStatus.NOT_FOUND
+            application.status = data["status"]
+            application.comment = data.get("comment")
+            application.updated_at = datetime.now()
+            db.session.commit()
+
+        except SQLAlchemyError as err:
+            raise UnprocessableError("Error in fetching application details") from err
+
+        return "", HTTPStatus.OK

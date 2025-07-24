@@ -1,14 +1,15 @@
 from sqlalchemy import Sequence
 
 from hack_rest.database import db
+from hack_rest.db_models.mixin import CreatedAtMixin, PrintMixin, UpdatedAtMixin
 
 
-class Application(db.Model):
+class Application(db.Model, PrintMixin, CreatedAtMixin, UpdatedAtMixin):
     __tablename__ = "applications"
     __bind_key__ = "dhs"
 
     id_seq = Sequence("application_seq", start=179980)
-    id = db.Column("id", db.Integer, id_seq, primary_key=True)
+    id = db.Column("application_id", db.Integer, id_seq, primary_key=True)
     group_id = db.Column(
         "group_id",
         db.ForeignKey("groups.group_id", name="fk_application_group_id"),
