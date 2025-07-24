@@ -2,7 +2,11 @@ from flask import Blueprint
 from flask_restx import Api, apidoc
 
 from hack_rest.route.admin.resources import ADMIN_NS
+<<<<<<< HEAD
+from hack_rest.route.banking_service.resources import BANK_SERVICE_NS
+=======
 from hack_rest.route.application.resources import APPLICATION_NS
+>>>>>>> main
 from hack_rest.route.business.resources import BU_NS
 from hack_rest.route.group.group_member_register import GROUP_NS as GROUP_NS_2
 from hack_rest.route.group.group_register import GROUP_NS
@@ -28,4 +32,4 @@ api_v1 = Api(
 
 apidoc.apidoc.url_prefix = V1_PREFIX
 
-API_V1_NAMESPACES = [ADMIN_NS, BU_NS, GROUP_NS, GROUP_NS_2, UPLOADS_NS, APPLICATION_NS]
+API_V1_NAMESPACES = [ADMIN_NS, BU_NS, GROUP_NS, GROUP_NS_2, UPLOADS_NS, APPLICATION_NS, BANK_SERVICE_NS]
