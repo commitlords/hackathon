@@ -1,0 +1,20 @@
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  name: loksamarth-database
+  port: 5432
+
+persistence:
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+postgres:
+  user: postgres
+  password: mysecretpassword
+  db: mydb

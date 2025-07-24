@@ -1,0 +1,20 @@
+1. ✅ PostgreSQL has been deployed as a StatefulSet.
+2. 🛠️ To connect to your PostgreSQL instance, use the following DNS address:
+
+   my-database-0.my-database.<namespace>.svc.cluster.local:5432
+
+   Replace <namespace> with the namespace where this chart is deployed.
+
+3. 🔐 Credentials:
+   - User: postgres
+   - Password: mysecretpassword
+   - Database: mydb
+
+4. 📦 To connect from a Pod in the same namespace, use:
+
+   psql -h my-database-0.my-database -U postgres -d mydb
+
+5. 🚀 To upgrade or delete this release:
+
+   helm upgrade my-db ./my-database
+   helm uninstall my-db

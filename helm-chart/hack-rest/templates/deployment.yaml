@@ -36,6 +36,13 @@ spec:
           # image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           image: us-east1-docker.pkg.dev/qwiklabs-gcp-02-31aa6eba886b/loksamarth/loksamarth:25072101
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env: 
+            - name: DB_HOST
+              value: loksamarth-database     # Kubernetes service name
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_PASSWORD
+              value: loksamarth123
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
