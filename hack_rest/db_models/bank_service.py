@@ -1,5 +1,7 @@
 """Mock Bank Service"""
 
+from sqlalchemy import Sequence
+
 from hack_rest.database import db
 
 
@@ -9,7 +11,8 @@ class Bank(db.Model):
     __tablename__ = "bank"
     __bind_key__ = "dhs"
 
-    bank_id = db.Column(db.Integer, primary_key=True)
+    id_seq = Sequence("bank_seq", start=1)
+    bank_id = db.Column(db.Integer, id_seq, primary_key=True)
     bank_name = db.Column(db.String(250), nullable=False)
 
 
@@ -19,7 +22,8 @@ class BankBranch(db.Model):
     __tablename__ = "bank_branch"
     __bind_key__ = "dhs"
 
-    branch_id = db.Column(db.Integer, primary_key=True)
+    id_seq = Sequence("bank_branch_seq", start=1)
+    branch_id = db.Column(db.Integer, id_seq, primary_key=True)
     ifsc_code = db.Column(db.String(15), nullable=False)
     branch_address = db.Column(db.String(250), nullable=False)
     bank_id = db.Column(db.Integer, db.ForeignKey("bank.bank_id"), nullable=False)
@@ -31,7 +35,9 @@ class BankAccount(db.Model):
     __tablename__ = "bank_account"
     __bind_key__ = "dhs"
 
-    account_number = db.Column(db.Integer, primary_key=True)
+    id_seq = Sequence("bank_account_seq", start=1)
+
+    account_number = db.Column(db.Integer, id_seq, primary_key=True)
     user_name = db.Column(db.String(250), nullable=False)
     balance = db.Column(db.Float, nullable=False)
     aadhar_number = db.Column(db.BigInteger, nullable=False)
