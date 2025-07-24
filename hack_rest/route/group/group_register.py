@@ -18,7 +18,8 @@ from hack_rest.route.group.models.group_register_model import (
     GROUP_PUT_MODEL,
 )
 from hack_rest.route.utils.custom_errors import UnprocessableError
-from hack_rest.route.utils.util_functions import admin_required
+
+# from hack_rest.route.utils.util_functions import admin_required
 
 GROUP_NS = Namespace("groups", description="Group registration and management")
 
@@ -278,11 +279,25 @@ class DeleteInterest(Resource):
 @GROUP_NS.doc(security="Bearer Auth")
 class AllGroupDetail(Resource):
 
-    @admin_required
+    @jwt_required()
     @GROUP_NS.marshal_list_with(GROUP_OUTPUT_MODEL)
     def get(self):
         """get group details"""
-        groups = db.session.query(Group).all()
+        identity = get_jwt_identity()
+        group_id = identity.get("group_id")
+        role = identity.get("role")
+        groups = []
+
+        if role and role.upper() == "ADMIN":
+            groups = db.session.query(Group).all()
+        if group_id:
+            group = check_group(group_id)
+            if not group:
+                return {
+                    "message": f"group with {group_id} not found"
+                }, HTTPStatus.NOT_FOUND
+            groups = [group]
+
         return groups, HTTPStatus.OK
 
     @jwt_required()
