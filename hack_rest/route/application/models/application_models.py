@@ -1,4 +1,5 @@
 from flask_restx import Model, fields
+from hack_rest.route.custom_fields.custom_fields import DateTime
 
 APPLICATION_REGISTER_MODEL = Model(
     "ApplicationRegisterModel",
@@ -32,6 +33,8 @@ APPLICATION_OUT_MODEL = APPLICATION_REGISTER_MODEL.clone(
             attribute="group.district",
         ),
         "status": fields.String(required=True, description="application status"),
+        "createdAt": DateTime(description="Application Created At", attribute="created_at"),
+
     },
 )
 
