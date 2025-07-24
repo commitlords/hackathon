@@ -27,7 +27,9 @@ class BusinessInterest(Resource):
         """add a business interest category"""
         try:
             for entry in request.json:
-                bu = BusinessCategory(name=entry["name"])
+                bu = BusinessCategory(
+                    name=entry["name"], loan_amount=entry["loanAmount"]
+                )
                 db.session.add(bu)
                 db.session.flush()
         except SQLAlchemyError as err:
