@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from hack_rest.database import db
 from hack_rest.db_models.applications import Application
+from hack_rest.db_models.group import GroupBusinessInterest
 from hack_rest.route.application.models.application_models import (
     APPLICATION_OUT_MODEL,
     APPLICATION_PUT_MODEL,
@@ -40,7 +41,7 @@ class ApplicationRegister(Resource):
         if identity.get("group_id") != group_id:
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
-        if not check_group(group_id):
+        if not (group := check_group(group_id)):
             return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
 
         # Check if group already has an active (non-rejected) application
@@ -66,6 +67,7 @@ class ApplicationRegister(Resource):
 
         try:
             db.session.add(user_application)
+            group.interests.append(GroupBusinessInterest(name=data["businessInterest"]))
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()

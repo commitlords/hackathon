@@ -17,6 +17,9 @@ APPLICATION_REGISTER_MODEL = Model(
         "comment": fields.String(
             required=False, description="Comments for the application"
         ),
+        "businessInterest": fields.String(
+            required=True, description="business interest"
+        ),
     },
 )
 
