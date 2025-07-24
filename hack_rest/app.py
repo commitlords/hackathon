@@ -36,7 +36,7 @@ def create_db():
     """create database tables"""
     click.echo("creating app related tables")
     db.create_all()
-    click.echo("kjojtables created successfully")
+    click.echo("Create tables created successfully")
 
 
 @click.command("add_admin", help="create an admin")
