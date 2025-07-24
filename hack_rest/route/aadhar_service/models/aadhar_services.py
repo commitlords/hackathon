@@ -3,7 +3,9 @@ from flask_restx import Model, fields
 AADHAR_VALIDATE_MODEL = Model(
     "AadharValidateModel",
     {
-        "aadhar_number": fields.String(required=True, description="Aadhar Number"),
+        "aadhar_number": fields.String(
+            required=True, description="Aadhar Number", example="123456789012"
+        ),
         "name": fields.String(required=True, description="Name"),
         "dob": fields.Date(required=True, description="Date of Birth (YYYY-MM-DD)"),
         "address": fields.String(required=True, description="Address"),

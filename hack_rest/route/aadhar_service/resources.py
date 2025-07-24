@@ -1,5 +1,5 @@
-from http import HTTPStatus
 from datetime import datetime
+from http import HTTPStatus
 
 from flask import request
 from flask_restx import Namespace, Resource
@@ -17,10 +17,12 @@ AADHAR_SERVICE_NS.models[AADHAR_VALIDATE_MODEL.name] = AADHAR_VALIDATE_MODEL
 AADHAR_SERVICE_NS.models[AADHAR_RESPONSE_MODEL.name] = AADHAR_RESPONSE_MODEL
 
 
+# pylint: disable=too-many-boolean-expressions,broad-exception-caught
 @AADHAR_SERVICE_NS.route("/validate")
 class AadharValidate(Resource):
     @AADHAR_SERVICE_NS.expect(AADHAR_VALIDATE_MODEL)
     @AADHAR_SERVICE_NS.marshal_with(AADHAR_RESPONSE_MODEL)
+    @admin_required
     def post(self):
         """Validate Aadhar details"""
         data = request.json
@@ -29,6 +31,11 @@ class AadharValidate(Resource):
             .filter(AadharService.aadhar_number == data["aadhar_number"])
             .first()
         )
+
+        dob = data["dob"]
+        if isinstance(dob, str):
+            dob = datetime.strptime(dob, "%Y-%m-%d").date()
+
         if not aadhar:
             return {
                 "valid": False,
@@ -37,8 +44,8 @@ class AadharValidate(Resource):
 
         # Simple field match validation
         if (
-            aadhar.name == data["name"]
-            and aadhar.dob == data["dob"]
+            aadhar.aadhar_number == data["aadhar_number"]
+            and aadhar.dob == dob
             and aadhar.address == data["address"]
             and aadhar.gender == data["gender"]
             and aadhar.mobile_number == data["mobile_number"]
@@ -56,7 +63,6 @@ class AadharValidate(Resource):
 class AadharRegister(Resource):
     @AADHAR_SERVICE_NS.expect(AADHAR_VALIDATE_MODEL)
     @AADHAR_SERVICE_NS.marshal_with(AADHAR_RESPONSE_MODEL)
-    @admin_required
     def post(self):
         """Register new Aadhar details"""
         data = request.json
@@ -74,18 +80,15 @@ class AadharRegister(Resource):
             }, HTTPStatus.CONFLICT
 
         try:
-            # Convert dob to date if needed
-            dob = data["dob"]
-            if isinstance(dob, str):
-                dob = datetime.strptime(dob, "%Y-%m-%d").date()
 
             aadhar = AadharService(
                 aadhar_number=data["aadhar_number"],
                 name=data["name"],
-                dob=dob,
+                dob=data["dob"],
                 address=data["address"],
                 gender=data["gender"],
                 mobile_number=data["mobile_number"],
+                pan_number=data["pan_number"],
             )
             db.session.add(aadhar)
             db.session.commit()

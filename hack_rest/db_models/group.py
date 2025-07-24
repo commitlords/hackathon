@@ -12,6 +12,8 @@ from hack_rest.db_models.mixin import (
 )
 from hack_rest.db_models.uploads import AttachmentModel
 
+# from hack_rest.db_models.applications import Application
+
 
 class Group(PrintMixin, db.Model, CreatedAtMixin, CreatedByMixin, UpdatedAtByMixin):
     __tablename__ = "groups"
