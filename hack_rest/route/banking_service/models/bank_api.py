@@ -76,6 +76,6 @@ ADD_BANK_ACCOUNT_MODEL = Model(
 ADD_BANK_ACCOUNT_RESPONSE = Model(
     "AddBankAccountResponse", {
         "account_id": fields.Integer(description="Bank Account ID"),
-        "message": "Bank account added successfully"
+        "message": fields.String(description="Message")
     }
 )

@@ -34,3 +34,13 @@ APPLICATION_OUT_MODEL = APPLICATION_REGISTER_MODEL.clone(
         "status": fields.String(required=True, description="application status"),
     },
 )
+
+APPLICATION_PUT_MODEL = Model(
+    "applicationPutModel",
+    {
+        "status": fields.String(required=True, description="application status"),
+        "comment": fields.String(
+            required=False, description="Comments for the application"
+        ),
+    },
+)

@@ -10,6 +10,7 @@ from hack_rest.db_models.group import Group, GroupBusinessInterest
 from hack_rest.route.common import fetch_all_business_categories
 from hack_rest.route.group.common import check_group
 from hack_rest.route.group.models.group_register_model import (
+    APPLICATION_DETAIL_MODEL,
     GROUP_INPUT_MODEL,
     GROUP_INTEREST_MODEL,
     GROUP_LOGIN_MODEL,
@@ -19,8 +20,6 @@ from hack_rest.route.group.models.group_register_model import (
 )
 from hack_rest.route.utils.custom_errors import UnprocessableError
 
-# from hack_rest.route.utils.util_functions import admin_required
-
 GROUP_NS = Namespace("groups", description="Group registration and management")
 
 GROUP_NS.models[GROUP_INPUT_MODEL.name] = GROUP_INPUT_MODEL
@@ -29,6 +28,7 @@ GROUP_NS.models[GROUP_LOGIN_MODEL.name] = GROUP_LOGIN_MODEL
 GROUP_NS.models[GROUP_PUT_MODEL.name] = GROUP_PUT_MODEL
 GROUP_NS.models[GROUP_INTEREST_MODEL.name] = GROUP_INTEREST_MODEL
 GROUP_NS.models[GROUP_MEMBER_OUTPUT_MODEL.name] = GROUP_MEMBER_OUTPUT_MODEL
+GROUP_NS.models[APPLICATION_DETAIL_MODEL.name] = APPLICATION_DETAIL_MODEL
 
 
 @GROUP_NS.route("/register")

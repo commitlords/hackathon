@@ -7,6 +7,7 @@ from hack_rest.database import db
 
 class Bank(db.Model):
     """Banking mock services"""
+
     __tablename__ = "bank"
     __bind_key__ = "dhs"
 
@@ -14,8 +15,10 @@ class Bank(db.Model):
     bank_id = db.Column(db.Integer, id_seq, primary_key=True)
     bank_name = db.Column(db.String(250), nullable=False)
 
+
 class BankBranch(db.Model):
     """Banking mock services"""
+
     __tablename__ = "bank_branch"
     __bind_key__ = "dhs"
 
@@ -28,6 +31,7 @@ class BankBranch(db.Model):
 
 class BankAccount(db.Model):
     """Banking mock services"""
+
     __tablename__ = "bank_account"
     __bind_key__ = "dhs"
 
@@ -41,4 +45,6 @@ class BankAccount(db.Model):
     account_type = db.Column(db.String(10), nullable=False)
     mobile_number = db.Column(db.Integer, nullable=False)
     email_id = db.Column(db.String(50))
-    branch_id = db.Column(db.Integer, db.ForeignKey("bank_branch.branch_id"), nullable=False)
+    branch_id = db.Column(
+        db.Integer, db.ForeignKey("bank_branch.branch_id"), nullable=False
+    )
