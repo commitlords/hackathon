@@ -147,6 +147,8 @@ def create_app() -> Flask:
     app.cli.add_command(drop_db)
     app.cli.add_command(add_admin)
 
+    with app.app_context():
+        db.create_all()
     return app
 
 

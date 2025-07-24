@@ -28,5 +28,9 @@ COPY . .
 # ExPOSE the app port
 EXPOSE $PORT
 
+# Init db script
+COPY init_db.py .
+
 #Start the app using gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "wsgi:application"]
+#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "wsgi:application"]
+CMD ["sh", "-c", "python init_db.py && gunicorn -w 4 -b 0.0.0.0:8000 wsgi:application"]
