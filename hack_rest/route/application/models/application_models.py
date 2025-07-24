@@ -27,6 +27,7 @@ APPLICATION_OUT_MODEL = APPLICATION_REGISTER_MODEL.clone(
         "groupName": fields.String(
             required=True, description="Group ID of the group", attribute="group.name"
         ),
+        "groupInterest": fields.String(required=True, description="Group Interest", attribute="group.interests.0.name"),
         "district": fields.String(
             required=True,
             description="district of the group",
