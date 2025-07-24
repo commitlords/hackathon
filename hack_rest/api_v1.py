@@ -3,6 +3,7 @@ from flask_restx import Api, apidoc
 
 from hack_rest.route.aadhar_service.resources import AADHAR_SERVICE_NS
 from hack_rest.route.admin.resources import ADMIN_NS
+from hack_rest.route.group.chatbot_service import BOT_NS
 from hack_rest.route.application.resources import APPLICATION_NS
 from hack_rest.route.banking_service.resources import BANK_SERVICE_NS
 from hack_rest.route.business.resources import BU_NS
@@ -32,6 +33,7 @@ apidoc.apidoc.url_prefix = V1_PREFIX
 
 API_V1_NAMESPACES = [
     ADMIN_NS,
+    BOT_NS,
     BU_NS,
     GROUP_NS,
     GROUP_NS_2,
