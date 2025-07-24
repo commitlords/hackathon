@@ -7,12 +7,22 @@ from hack_rest.db_models.bank_service import BankAccount, BankBranch
 from hack_rest.database import db
 from hack_rest.db_models.group import Group, GroupMember
 from hack_rest.route.banking_service.models.bank_account_validate import BANK_ACCOUNT_VALIDATE, BANK_VALIDATE_RESPONSE
+from hack_rest.route.banking_service.models.bank_api import ADD_BANK_ACCOUNT_MODEL, ADD_BANK_ACCOUNT_RESPONSE, ADD_BANK_BRANCH_MODEL, ADD_BANK_BRANCH_RESPONSE, ADD_BANK_MODEL, ADD_BANK_RESPONSE, GET_BANK_ACCOUNT_MODEL, GET_BANK_BRANCH_MODEL, GET_BANK_MODEL
 from hack_rest.route.utils.util_functions import admin_required
 
 BANK_SERVICE_NS = Namespace("bank", description="Banking Service APIs")
 
 BANK_SERVICE_NS.models[BANK_ACCOUNT_VALIDATE.name] = BANK_ACCOUNT_VALIDATE
 BANK_SERVICE_NS.models[BANK_VALIDATE_RESPONSE.name] = BANK_VALIDATE_RESPONSE
+BANK_SERVICE_NS.models[ADD_BANK_MODEL.name] = ADD_BANK_MODEL
+BANK_SERVICE_NS.models[ADD_BANK_RESPONSE.name] = ADD_BANK_RESPONSE
+BANK_SERVICE_NS.models[GET_BANK_MODEL.name] = GET_BANK_MODEL
+BANK_SERVICE_NS.models[GET_BANK_BRANCH_MODEL.name] = GET_BANK_BRANCH_MODEL
+BANK_SERVICE_NS.models[ADD_BANK_BRANCH_MODEL.name] = ADD_BANK_BRANCH_MODEL
+BANK_SERVICE_NS.models[ADD_BANK_BRANCH_RESPONSE.name] = ADD_BANK_BRANCH_RESPONSE
+BANK_SERVICE_NS.models[GET_BANK_ACCOUNT_MODEL.name] = GET_BANK_ACCOUNT_MODEL
+BANK_SERVICE_NS.models[ADD_BANK_ACCOUNT_MODEL.name] = ADD_BANK_ACCOUNT_MODEL
+BANK_SERVICE_NS.models[ADD_BANK_ACCOUNT_RESPONSE.name] = ADD_BANK_ACCOUNT_RESPONSE
 
 
 @BANK_SERVICE_NS.route("/<group_id>/loan_distribute")
@@ -85,6 +95,7 @@ class BankAccountValidate(Resource):
 class Bank(Resource):
     """Bank Related APIs"""
 
+    @BANK_SERVICE_NS.marshal_with(GET_BANK_MODEL)
     def get(self):
         """
         Get Bank Details
@@ -95,6 +106,8 @@ class Bank(Resource):
             bank_details.append({"bank_id": bank.bank_id, "bank_name": bank.bank_name})
         return {"banks": bank_details}, HTTPStatus.OK
     
+    @BANK_SERVICE_NS.expect(ADD_BANK_MODEL)
+    @BANK_SERVICE_NS.marshal_with(ADD_BANK_RESPONSE)
     def post(self):
         """
         Add Bank
@@ -110,6 +123,7 @@ class Bank(Resource):
 class BankBranch(Resource):
     """Bank Branch Related APIs"""
 
+    @BANK_SERVICE_NS.marshal_with(GET_BANK_BRANCH_MODEL)
     def get(self):
         """
         Get Bank Branch Details
@@ -125,6 +139,8 @@ class BankBranch(Resource):
             })
         return {"bank_branches": bank_branch_details}, HTTPStatus.OK
     
+    @BANK_SERVICE_NS.expect(ADD_BANK_BRANCH_MODEL)
+    @BANK_SERVICE_NS.marshal_with(ADD_BANK_BRANCH_RESPONSE)
     def post(self):
         """
         Add Bank Branch
@@ -143,6 +159,7 @@ class BankBranch(Resource):
 class BankAccount(Resource):
     """Bank Account Related APIs"""
 
+    @BANK_SERVICE_NS.marshal_with(GET_BANK_ACCOUNT_MODEL)
     def get(self):
         """
         Get Bank Account Details
@@ -163,6 +180,8 @@ class BankAccount(Resource):
             })
         return {"bank_accounts": bank_account_details}, HTTPStatus.OK
     
+    @BANK_SERVICE_NS.expect(ADD_BANK_ACCOUNT_MODEL)
+    @BANK_SERVICE_NS.marshal_with(ADD_BANK_ACCOUNT_RESPONSE)
     def post(self):
         """
         Add Bank Account
