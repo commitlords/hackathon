@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask_restx import Api, apidoc
 
+from hack_rest.route.aadhar_service.resources import AADHAR_SERVICE_NS
 from hack_rest.route.admin.resources import ADMIN_NS
 from hack_rest.route.application.resources import APPLICATION_NS
 from hack_rest.route.banking_service.resources import BANK_SERVICE_NS
@@ -35,6 +36,7 @@ API_V1_NAMESPACES = [
     GROUP_NS,
     GROUP_NS_2,
     UPLOADS_NS,
+    AADHAR_SERVICE_NS,
     APPLICATION_NS,
     BANK_SERVICE_NS,
 ]
