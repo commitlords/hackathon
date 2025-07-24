@@ -8,8 +8,21 @@ from flask_restx import Namespace, Resource
 from hack_rest.database import db
 from hack_rest.db_models.bank_service import BankAccount, BankBranch
 from hack_rest.db_models.group import Group, GroupMember
-from hack_rest.route.banking_service.models.bank_account_validate import BANK_ACCOUNT_VALIDATE, BANK_VALIDATE_RESPONSE
-from hack_rest.route.banking_service.models.bank_api import ADD_BANK_ACCOUNT_MODEL, ADD_BANK_ACCOUNT_RESPONSE, ADD_BANK_BRANCH_MODEL, ADD_BANK_BRANCH_RESPONSE, ADD_BANK_MODEL, ADD_BANK_RESPONSE, GET_BANK_ACCOUNT_MODEL, GET_BANK_BRANCH_MODEL, GET_BANK_MODEL
+from hack_rest.route.banking_service.models.bank_account_validate import (
+    BANK_ACCOUNT_VALIDATE,
+    BANK_VALIDATE_RESPONSE,
+)
+from hack_rest.route.banking_service.models.bank_api import (
+    ADD_BANK_ACCOUNT_MODEL,
+    ADD_BANK_ACCOUNT_RESPONSE,
+    ADD_BANK_BRANCH_MODEL,
+    ADD_BANK_BRANCH_RESPONSE,
+    ADD_BANK_MODEL,
+    ADD_BANK_RESPONSE,
+    GET_BANK_ACCOUNT_MODEL,
+    GET_BANK_BRANCH_MODEL,
+    GET_BANK_MODEL,
+)
 from hack_rest.route.utils.util_functions import admin_required
 
 BANK_SERVICE_NS = Namespace("bank", description="Banking Service APIs")
@@ -114,7 +127,7 @@ class Bank(Resource):
         for bank in banks:
             bank_details.append({"bank_id": bank.bank_id, "bank_name": bank.bank_name})
         return {"banks": bank_details}, HTTPStatus.OK
-    
+
     @BANK_SERVICE_NS.expect(ADD_BANK_MODEL)
     @BANK_SERVICE_NS.marshal_with(ADD_BANK_RESPONSE)
     def post(self):
@@ -149,7 +162,7 @@ class BankBranch(Resource):
                 }
             )
         return {"bank_branches": bank_branch_details}, HTTPStatus.OK
-    
+
     @BANK_SERVICE_NS.expect(ADD_BANK_BRANCH_MODEL)
     @BANK_SERVICE_NS.marshal_with(ADD_BANK_BRANCH_RESPONSE)
     def post(self):
@@ -193,7 +206,7 @@ class BankAccount(Resource):
                 }
             )
         return {"bank_accounts": bank_account_details}, HTTPStatus.OK
-    
+
     @BANK_SERVICE_NS.expect(ADD_BANK_ACCOUNT_MODEL)
     @BANK_SERVICE_NS.marshal_with(ADD_BANK_ACCOUNT_RESPONSE)
     def post(self):
