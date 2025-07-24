@@ -44,7 +44,8 @@ class GroupRegister(Resource):
         login_id = data.get("loginID")
         password = data.get("password")
         created_by = data.get("createdBy")
-
+        email = data.get("email")
+        group_phone_number = data.get("groupPhoneNumber")
         if db.session.query(Group).filter(Group.login_id == login_id).one_or_none():
             return {
                 "message": f"LoginID {login_id} already exists"
@@ -62,6 +63,8 @@ class GroupRegister(Resource):
                 login_id=login_id,
                 created_by=created_by,
                 updated_by=created_by,
+                group_phone_number=group_phone_number,
+                email=email,
             )
             group.set_password(password)
             db.session.add(group)
@@ -221,6 +224,8 @@ class GroupDetail(Resource):
         group_name = data.get("groupName")
         district = data.get("district")
         password = data.get("password")
+        email = data.get("email")
+        group_phone_number = data.get("groupPhoneNumber")
 
         group = db.session.query(Group).filter(Group.id == group_id).one_or_none()
         if not group:
@@ -233,8 +238,14 @@ class GroupDetail(Resource):
                 group.district = district
             if group_name:
                 group.name = group_name
+            if email:
+                group.email = email
+            if group_phone_number:
+                group.group_phone_number = group_phone_number
+
             if password:
                 group.set_password(password)
+
             db.session.commit()
         except SQLAlchemyError as err:
             db.session.rollback()

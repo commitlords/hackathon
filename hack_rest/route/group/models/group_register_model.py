@@ -8,6 +8,10 @@ GROUP_PUT_MODEL = Model(
         "groupName": fields.String(required=True, description="Name of the group"),
         "district": fields.String(required=False, description="District of the group"),
         "password": fields.String(required=True, description="password of the group"),
+        "groupPhoneNumber": fields.Integer(
+            required=True, description="phone number of the group"
+        ),
+        "email": fields.String(required=True, description="email of the group"),
     },
 )
 GROUP_INPUT_MODEL = GROUP_PUT_MODEL.clone(
@@ -36,7 +40,9 @@ GROUP_MEMBER_MODEL = Model(
     "GroupMemberModel",
     {
         "name": fields.String(required=True, description="name of group member"),
-        "age": fields.Integer(required=False, description="age of group member"),
+        "dob": fields.String(
+            required=True, description="Date Of Birth of group member"
+        ),
         "sex": fields.String(required=False, description="sex of group member"),
         "aadharNumber": fields.String(
             required=True,
@@ -45,6 +51,11 @@ GROUP_MEMBER_MODEL = Model(
         ),
         "panNumber": fields.String(
             required=True, description="PAN no. of group member", attribute="pan_number"
+        ),
+        "bankName": fields.String(
+            required=True,
+            description="Bank name in which account resides",
+            attribute="bank_name",
         ),
         "bankAccountNumber": fields.String(
             required=True,
@@ -56,6 +67,12 @@ GROUP_MEMBER_MODEL = Model(
             description="Bank IfSC code of group member",
             attribute="bank_ifsc_code",
         ),
+        "email": fields.String(required=False, description="email of the group member"),
+        "phoneNumber": fields.Integer(
+            required=False,
+            description="phone number of the group member",
+            attribute="phone_number",
+        ),
         "photoID": GUID(
             description="phot id of the group member", attribute="photo_id"
         ),
@@ -65,6 +82,9 @@ GROUP_MEMBER_MODEL = Model(
 GROUP_MEMBER_OUTPUT_MODEL = GROUP_MEMBER_MODEL.clone(
     "GroupMemberOut",
     {
+        "memberID": fields.Integer(
+            required=True, description="Group Member ID", attribute="id"
+        ),
         "createdAt": DateTime(
             required=True, description="group member created_at", attribute="created_at"
         ),
@@ -91,6 +111,9 @@ GROUP_OUTPUT_MODEL = Model(
         "groupName": fields.String(
             required=True, description="Name of the group", attribute="name"
         ),
+        "groupID": fields.Integer(
+            required=True, description="group id", attribute="id"
+        ),
         "district": fields.String(required=False, description="District of the group"),
         "loginID": fields.String(
             required=True, description="Login ID of the group", attribute="login_id"
@@ -105,6 +128,14 @@ GROUP_OUTPUT_MODEL = Model(
         ),
         "updatedAt": DateTime(
             required=True, description="group created_at", attribute="updated_at"
+        ),
+        "email": fields.String(
+            required=False, description="group register email", attribute="email"
+        ),
+        "groupPhoneNumber": fields.Integer(
+            required=True,
+            description="group register phone number",
+            attribute="group_phone_number",
         ),
         "members": fields.List(
             fields.Nested(GROUP_MEMBER_OUTPUT_MODEL), description="members of group"

@@ -25,6 +25,8 @@ class Group(PrintMixin, db.Model, CreatedAtMixin, CreatedByMixin, UpdatedAtByMix
     district = db.Column("district", db.String)
     login_id = db.Column("login_id", db.String, unique=True, nullable=False)
     password_hash = db.Column("password_hash", db.String, nullable=False)
+    group_phone_number = db.Column("group_phone_number", db.BigInteger, nullable=False)
+    email = db.Column("email", db.String, nullable=True)
     interests = relationship("GroupBusinessInterest", back_populates="group")
     members = relationship("GroupMember", back_populates="group")
     applications = db.relationship("Application", back_populates="group")
@@ -60,10 +62,13 @@ class GroupMember(PrintMixin, db.Model, CreatedAtMixin, UpdatedAtByMixin):
         "group_id", db.ForeignKey(Group.id, name="fk_grp_mem_group_id")
     )
     name = db.Column("name", db.String, nullable=False)
-    age = db.Column("age", db.Integer)
+    dob = db.Column("dob", db.String, nullable=False)
     sex = db.Column("sex", db.String(10))
+    email = db.Column("email", db.String(25), nullable=True)
+    phone_number = db.Column("phone_number", db.BigInteger, nullable=True)
     aadhar_number = db.Column("aadhar_number", db.String(12), nullable=False)
     pan_number = db.Column("pan_no", db.String(25), nullable=False)
+    bank_name = db.Column("bank_name", db.String(35), nullable=False)
     bank_account_number = db.Column(
         "bank_account_number", db.String(35), nullable=False
     )
