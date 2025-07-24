@@ -36,7 +36,7 @@ def create_db():
     """create database tables"""
     click.echo("creating app related tables")
     db.create_all()
-    click.echo("kjojtables created successfully")
+    click.echo("Create tables created successfully")
 
 
 @click.command("add_admin", help="create an admin")
@@ -151,4 +151,4 @@ def create_app() -> Flask:
 
 
 if __name__ == "__main__":
-    create_app().run(host=os.environ.get("FLASK_HOST", "0.0.0.0"), port=8080)
+    create_app().run(host=os.environ.get("FLASK_HOST", "0.0.0.0"), port=8080, debug=True)
