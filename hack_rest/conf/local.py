@@ -10,10 +10,11 @@ JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=10)
 
 USER = os.environ.get("USER", "docker")
 PASSWORD = os.environ.get("PASSWORD", "docker")
+HOSTNAME = os.environ.get("DB_HOST", "localhost")
 
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_DATABASE_URI = f"postgresql://{USER}:{PASSWORD}@localhost:5432/dhs"
-SQLALCHEMY_BINDS = {"dhs": f"postgresql://{USER}:{PASSWORD}@localhost:5432/dhs"}
+SQLALCHEMY_DATABASE_URI = f"postgresql://{USER}:{PASSWORD}@{HOSTNAME}:5432/dhs"
+SQLALCHEMY_BINDS = {"dhs": f"postgresql://{USER}:{PASSWORD}@{HOSTNAME}:5432/dhs"}
 
 RESTX_ERROR_404_HELP = False
