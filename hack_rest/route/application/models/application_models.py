@@ -1,5 +1,7 @@
 from flask_restx import Model, fields
+
 from hack_rest.route.custom_fields.custom_fields import DateTime
+from hack_rest.route.group.models.group_register_model import GROUP_INTEREST_MODEL
 
 APPLICATION_REGISTER_MODEL = Model(
     "ApplicationRegisterModel",
@@ -18,6 +20,7 @@ APPLICATION_REGISTER_MODEL = Model(
     },
 )
 
+
 APPLICATION_OUT_MODEL = APPLICATION_REGISTER_MODEL.clone(
     "applicationOutModel",
     {
@@ -27,15 +30,20 @@ APPLICATION_OUT_MODEL = APPLICATION_REGISTER_MODEL.clone(
         "groupName": fields.String(
             required=True, description="Group ID of the group", attribute="group.name"
         ),
-        "groupInterest": fields.String(required=True, description="Group Interest", attribute="group.interests.0.name"),
+        "businessInterest": fields.List(
+            fields.Nested(GROUP_INTEREST_MODEL),
+            description="group interests",
+            attribute="group.interests",
+        ),
         "district": fields.String(
             required=True,
             description="district of the group",
             attribute="group.district",
         ),
         "status": fields.String(required=True, description="application status"),
-        "createdAt": DateTime(description="Application Created At", attribute="created_at"),
-
+        "createdAt": DateTime(
+            description="Application Created At", attribute="created_at"
+        ),
     },
 )
 
