@@ -74,6 +74,16 @@ GROUP_MEMBER_OUTPUT_MODEL = GROUP_MEMBER_MODEL.clone(
     },
 )
 
+APPLICATION_DETAIL_MODEL = Model(
+    "ApplicationDetails",
+    {
+        "applicationID": fields.Integer(description="application ID", attribute="id"),
+        "status": fields.String(description="Application Status"),
+        "loanAmount": fields.String(
+            description="Application Loan Amount", attribute="loan_amount"
+        ),
+    },
+)
 
 GROUP_OUTPUT_MODEL = Model(
     "GroupOutputModel",
@@ -101,6 +111,9 @@ GROUP_OUTPUT_MODEL = Model(
         ),
         "interests": fields.List(
             fields.Nested(GROUP_INTEREST_MODEL), description="group interest"
+        ),
+        "applications": fields.List(
+            fields.Nested(APPLICATION_DETAIL_MODEL), description="application details"
         ),
     },
 )
