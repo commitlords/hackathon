@@ -73,11 +73,13 @@ class AttachmentUpload(Resource):
         return upload
 
 
-@UPLOADS_NS.route("/<uuid:guid>")
+@UPLOADS_NS.route("/<string:guid>")
 class AttachmentDownload(Resource):
     @jwt_required()
-    def get(self, guid: UUID):
+    def get(self, guid: str):
+        guid = UUID(guid)
         try:
+            print("guid:  ", guid)
             attachment = (
                 db.session.query(AttachmentModel)
                 .filter(AttachmentModel.guid == guid)
