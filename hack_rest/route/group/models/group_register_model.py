@@ -105,6 +105,11 @@ APPLICATION_DETAIL_MODEL = Model(
     },
 )
 
+CHATBOT_USER_INTRACTION_MODEL = Model(
+    "ChatBotUserInteractionModel",
+    {"sentance": fields.String(required=True, description="user input to bot")},
+)
+
 GROUP_OUTPUT_MODEL = Model(
     "GroupOutputModel",
     {
