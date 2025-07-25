@@ -7,7 +7,7 @@ DEBUG = True
 
 JWT_SECRET_KEY = "JWT_SECRETS"
 JWT_IDENTITY_CLAIM = "identity"
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=10)
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=300)
 
 # USER = os.environ.get("USER", "docker")
 # PASSWORD = os.environ.get("PASSWORD", "docker")

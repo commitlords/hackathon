@@ -75,7 +75,7 @@ class AttachmentUpload(Resource):
 
 @UPLOADS_NS.route("/<string:guid>")
 class AttachmentDownload(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, guid: str):
         guid = UUID(guid)
         try:
