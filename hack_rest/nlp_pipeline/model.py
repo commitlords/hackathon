@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class NeuralNetwork(nn.Module):
     def __init__(self, input_size, hidden_size, num_classes):
         super(NeuralNetwork, self).__init__()
@@ -9,7 +10,7 @@ class NeuralNetwork(nn.Module):
         # Layer activating Function
         self.relu = nn.ReLU()
 
-    def forward(self,data):
+    def forward(self, data):
         out = self.layer1(data)
         out = self.relu(out)
         out = self.layer2(out)

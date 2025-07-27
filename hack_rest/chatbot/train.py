@@ -1,8 +1,12 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from transformers import AutoTokenizer
-from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import Dataset
+from sklearn.preprocessing import LabelEncoder
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    Trainer,
+    TrainingArguments,
+)
 
 
 def train_classification_ai_model():
@@ -15,22 +19,22 @@ def train_classification_ai_model():
     # Encode labels
     le = LabelEncoder()
     # df['label_id'] = le.fit_transform(df['label'])
-    df['business_category_id'] = le.fit_transform(df['Business Category'])
+    df["business_category_id"] = le.fit_transform(df["Business Category"])
 
     # Tokenize text
     tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
     def tokenize(batch):
-        return tokenizer(batch['Sentances or word'], padding=True, truncation=True)
+        return tokenizer(batch["Sentances or word"], padding=True, truncation=True)
 
-    dataset = Dataset.from_pandas(df[['Sentances or word', 'business_category_id']])
+    dataset = Dataset.from_pandas(df[["Sentances or word", "business_category_id"]])
     dataset = dataset.map(tokenize, batched=True)
     dataset = dataset.rename_column("business_category_id", "label")
     dataset.set_format("torch", columns=["input_ids", "attention_mask", "label"])
 
-
-
-    model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=len(le.classes_))
+    model = AutoModelForSequenceClassification.from_pretrained(
+        "distilbert-base-uncased", num_labels=len(le.classes_)
+    )
 
     training_args = TrainingArguments(
         output_dir="./hack_rest/chatbot/business_classifier/results",
@@ -38,14 +42,10 @@ def train_classification_ai_model():
         per_device_train_batch_size=4,
         logging_dir="./hack_rest/chatbot/business_classifier/logs",
         logging_steps=10,
-        eval_strategy="no"
+        eval_strategy="no",
     )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=dataset
-    )
+    trainer = Trainer(model=model, args=training_args, train_dataset=dataset)
 
     trainer.train()
 
