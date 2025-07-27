@@ -27,6 +27,7 @@ class AddMember(Resource):
 
     @jwt_required()
     @GROUP_NS.expect(GROUP_MEMBER_MODEL)
+    @GROUP_NS.marshal_with(GROUP_MEMBER_OUTPUT_MODEL)
     @parse_json(GROUP_MEMBER_MODEL)
     def post(self, group_id):
         """Add a member to a group"""
@@ -69,7 +70,7 @@ class AddMember(Resource):
                 "details": str(err),
             }, HTTPStatus.INTERNAL_SERVER_ERROR
 
-        return {"member_id": member.id}, HTTPStatus.CREATED
+        return member, HTTPStatus.CREATED
 
     @jwt_required()
     @GROUP_NS.marshal_with(GROUP_MEMBER_OUTPUT_MODEL)
