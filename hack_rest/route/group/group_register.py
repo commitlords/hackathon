@@ -102,6 +102,26 @@ class GroupLogin(Resource):
 @GROUP_NS.route("/<int:group_id>/interests")
 class AddInterest(Resource):
 
+    def _add_or_update_interest(self, group_id, interest_name):
+        """Helper method to add or update a group interest."""
+        try:
+            bu_categories = [cat['name'] for cat in fetch_all_business_categories()]
+            if interest_name not in bu_categories:
+                raise UnprocessableError(
+                    f"Interest '{interest_name}' not found in business categories"
+                )
+
+            # Check if the interest already exists for the group to avoid duplicates
+            existing_interest = GroupBusinessInterest.query.filter_by(group_id=group_id, name=interest_name).first()
+            if not existing_interest:
+                group_interest = GroupBusinessInterest(group_id=group_id, name=interest_name)
+                db.session.add(group_interest)
+                db.session.commit()
+        except SQLAlchemyError as err:
+            db.session.rollback()
+            # It's better to raise a more specific error or log it
+            raise UnprocessableError(f"Error in processing group interest: {str(err)}") from err
+
     @GROUP_NS.expect(GROUP_INTEREST_MODEL)
     @jwt_required()
     def post(self, group_id):
@@ -111,23 +131,7 @@ class AddInterest(Resource):
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         interest = request.json["name"]
-        try:
-            bu_categories = fetch_all_business_categories()
-            if interest not in bu_categories:
-                raise UnprocessableError(
-                    f"interest {interest} not found in business categories"
-                )
-
-            group_interest = GroupBusinessInterest(group_id=group_id, name=interest)
-            db.session.add(group_interest)
-            db.session.commit()
-        except SQLAlchemyError as err:
-            db.session.rollback()
-            return {
-                "message": "Error in group interest registration",
-                "details": str(err),
-            }, HTTPStatus.INTERNAL_SERVER_ERROR
-
+        self._add_or_update_interest(group_id, interest)
         return {"interest": interest}, HTTPStatus.CREATED
 
     @jwt_required()
@@ -152,23 +156,7 @@ class AddInterest(Resource):
             return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
 
         interest = request.json["name"]
-        try:
-            bu_categories = fetch_all_business_categories()
-            if interest not in bu_categories:
-                raise UnprocessableError(
-                    f"interest {interest} not found in business categories"
-                )
-
-            group_interest = GroupBusinessInterest(group_id=group_id, name=interest)
-            db.session.add(group_interest)
-            db.session.commit()
-        except SQLAlchemyError as err:
-            db.session.rollback()
-            return {
-                "message": "Error in group interest registration",
-                "details": str(err),
-            }, HTTPStatus.INTERNAL_SERVER_ERROR
-
+        self._add_or_update_interest(group_id, interest)
         return {"interest": interest}, HTTPStatus.OK
 
 
@@ -309,27 +297,10 @@ class AllGroupDetail(Resource):
                 }, HTTPStatus.NOT_FOUND
             groups = [group]
 
+        # FIX: Clean up interest names before sending the response
+        for group in groups:
+            for interest in group.interests:
+                # Removes curly braces and extra quotes that might be saved in the string
+                interest.name = interest.name.strip("{}'")
+
         return groups, HTTPStatus.OK
-
-    @jwt_required()
-    def delete(self, group_id):
-        """delete a group"""
-        identity = get_jwt_identity()
-        if identity.get("group_id") != group_id:
-            return {"message": "Forbidden"}, HTTPStatus.FORBIDDEN
-
-        group = check_group(group_id)
-        if not group:
-            return {"message": f"group with {group_id} not found"}, HTTPStatus.NOT_FOUND
-
-        try:
-            db.session.delete(group)
-            db.session.commit()
-        except SQLAlchemyError as err:
-            db.session.rollback()
-            return {
-                "message": f"Error in deleting group {group_id}",
-                "details": str(err),
-            }, HTTPStatus.INTERNAL_SERVER_ERROR
-
-        return "", HTTPStatus.NO_CONTENT
