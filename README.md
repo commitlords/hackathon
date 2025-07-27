@@ -36,7 +36,7 @@ createdb -O docker dhs
 Create schema
 ```sh
 psql -d dhs -c "CREATE SCHEMA IF NOT EXISTS \"FININC_OWNER\"; GRANT ALL PRIVILEGES ON SCHEMA \"FININC_OWNER\" to docker;"
-psql -d dhs "CREATE ROLE \"FININC_USER\";"
+psql -d -c dhs "CREATE ROLE \"FININC_USER\";"
 ```
 
 Drop schema

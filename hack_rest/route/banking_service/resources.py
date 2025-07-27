@@ -7,7 +7,7 @@ from flask_restx import Namespace, Resource
 
 from hack_rest.database import db
 from hack_rest.db_models.bank_service import BankAccount, BankBranch
-from hack_rest.db_models.group import Group, GroupMember
+from hack_rest.db_models.group import GroupMember
 from hack_rest.route.banking_service.models.bank_account_validate import (
     BANK_ACCOUNT_VALIDATE,
     BANK_VALIDATE_RESPONSE,
@@ -51,7 +51,7 @@ class LoanDistribute(Resource):
         """
         distribution_amount = request.json.get("distribution_amount")
         account_numbers = (
-            db.sessions.query(BankAccount.account_number)
+            db.session.query(BankAccount.account_number)
             .join(GroupMember, BankAccount.aadhar_number == GroupMember.aadhar_number)
             .filter(GroupMember.group_id == group_id)
             .all()
@@ -61,7 +61,7 @@ class LoanDistribute(Resource):
             for account_number in account_numbers:
                 account = (
                     db.session.query(BankAccount)
-                    .filter(BankAccount.account_number == account_number)
+                    .filter(BankAccount.account_number == account_number[0])
                     .first()
                 )
                 account.balance += amount_each_member
@@ -71,10 +71,10 @@ class LoanDistribute(Resource):
             return {
                 "message": "Loan distributed successfully",
             }, HTTPStatus.OK
-        else:
-            return {
-                "message": "No accounts found for this group",
-            }, HTTPStatus.BAD_REQUEST
+        
+        return {
+            "message": "No accounts found for this group",
+        }, HTTPStatus.BAD_REQUEST
 
 
 @BANK_SERVICE_NS.route("/validate")
@@ -142,7 +142,7 @@ class Bank(Resource):
 
 
 @BANK_SERVICE_NS.route("/branch")
-class BankBranch(Resource):
+class BankBranchAPI(Resource):
     """Bank Branch Related APIs"""
 
     @BANK_SERVICE_NS.marshal_with(GET_BANK_BRANCH_MODEL)
@@ -181,7 +181,7 @@ class BankBranch(Resource):
 
 
 @BANK_SERVICE_NS.route("/account")
-class BankAccount(Resource):
+class BankAccountAPI(Resource):
     """Bank Account Related APIs"""
 
     @BANK_SERVICE_NS.marshal_with(GET_BANK_ACCOUNT_MODEL)
